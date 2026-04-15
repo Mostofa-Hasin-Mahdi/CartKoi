@@ -129,6 +129,14 @@ CREATE POLICY "Anyone can view reviews"
 ON public.reviews FOR SELECT USING (true);
 
 -- Anyone can insert a review (Anonymous)
+-- Explicitly targeting 'anon' and 'authenticated' roles to acknowledge the public UGC tradeoff.
 CREATE POLICY "Anyone can insert reviews" 
-ON public.reviews FOR INSERT WITH CHECK (true);
+ON public.reviews 
+AS PERMISSIVE FOR INSERT 
+TO anon, authenticated
+WITH CHECK (
+  -- We leave this as true to allow anonymous inserts, 
+  -- but rely on the table-level CHECK constraint (rating 1-5) for data integrity.
+  true
+);
 
