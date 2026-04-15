@@ -125,6 +125,11 @@ ON public.menu_items FOR ALL USING (
 
 -- 5. Reviews
 -- Anyone can view reviews
+
+-- Drop the existing policies so we don't get a duplicate error
+DROP POLICY IF EXISTS "Anyone can view reviews" ON public.reviews;
+DROP POLICY IF EXISTS "Anyone can insert reviews" ON public.reviews;
+
 CREATE POLICY "Anyone can view reviews" 
 ON public.reviews FOR SELECT USING (true);
 
