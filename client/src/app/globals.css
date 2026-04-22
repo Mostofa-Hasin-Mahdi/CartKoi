@@ -158,9 +158,10 @@
    * 1. A slightly transparent white background (`bg-white/70`).
    * 2. A backdrop blur (`backdrop-blur-md`) that blurs whatever is behind it.
    * 3. A subtle white border (`border-white/50`) to simulate the glass edge.
+   * Note: backdrop-blur is extremely heavy on mobile GPUs. It is disabled on mobile (md:) for a smooth experience.
    */
   .glass-panel {
-    @apply bg-white/70 backdrop-blur-md border border-white/50 shadow-sm;
+    @apply bg-white/95 md:bg-white/70 md:backdrop-blur-md border border-white/50 shadow-sm;
   }
 
   /* 

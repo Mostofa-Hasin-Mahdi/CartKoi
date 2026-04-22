@@ -72,7 +72,7 @@ export default function Hero() {
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Cart 1 */}
-          <div className="glass-panel p-5 rounded-3xl animate-float border-white/60 shadow-lg hover:-translate-y-2 transition-transform cursor-pointer">
+          <div className="glass-panel p-5 rounded-3xl md:animate-float border-white/60 shadow-lg hover:-translate-y-2 transition-transform cursor-pointer">
             <div className="w-full h-32 bg-primary/20 rounded-2xl mb-4 overflow-hidden relative shadow-inner">
               <Image src={cartImage} alt="Cart Logo" fill className="object-contain p-4" />
             </div>
@@ -88,7 +88,7 @@ export default function Hero() {
           </div>
 
           {/* Cart 2 */}
-          <div className="glass-panel p-5 rounded-3xl animate-float border-white/60 shadow-lg hover:-translate-y-2 transition-transform cursor-pointer" style={{ animationDelay: '1s' }}>
+          <div className="glass-panel p-5 rounded-3xl md:animate-float border-white/60 shadow-lg hover:-translate-y-2 transition-transform cursor-pointer" style={{ animationDelay: '1s' }}>
             <div className="w-full h-32 bg-secondary/20 rounded-2xl mb-4 overflow-hidden relative shadow-inner flex items-center justify-center">
               <Image src={cartImage} alt="Cart Logo" fill className="object-contain p-4" />
             </div>
@@ -104,7 +104,7 @@ export default function Hero() {
           </div>
 
           {/* Cart 3 */}
-          <div className="glass-panel p-5 rounded-3xl animate-float border-white/60 shadow-lg hover:-translate-y-2 transition-transform cursor-pointer" style={{ animationDelay: '2s' }}>
+          <div className="glass-panel p-5 rounded-3xl md:animate-float border-white/60 shadow-lg hover:-translate-y-2 transition-transform cursor-pointer" style={{ animationDelay: '2s' }}>
             <div className="w-full h-32 bg-tertiary/20 rounded-2xl mb-4 overflow-hidden relative shadow-inner flex items-center justify-center">
               <Image src={cartImage} alt="Cart Logo" fill className="object-contain p-4" />
             </div>
