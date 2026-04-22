@@ -1,7 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Search, Map } from "lucide-react";
+import { Search, Map, MapPin } from "lucide-react";
+
+import Image from "next/image";
+import cartImage from "@/assets/cart.png";
 
 export default function Hero() {
   return (
@@ -14,8 +17,8 @@ export default function Hero() {
         We use soft colored circular divs with heavy blur to create a dreamy background.
         This enhances the glassmorphism aesthetic.
       */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-float" />
-      <div className="absolute bottom-20 right-10 w-72 h-72 bg-secondary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-float" style={{ animationDelay: '2s' }} />
+      <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-float hidden md:block" />
+      <div className="absolute bottom-20 right-10 w-72 h-72 bg-secondary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-float hidden md:block" style={{ animationDelay: '2s' }} />
 
       <div className="relative z-10 text-center max-w-3xl mx-auto space-y-6">
         <motion.h1 
@@ -60,31 +63,62 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      {/* Floating 3D Widget Cart (Visual hook) */}
+      {/* Cart Listings (Uttara Locations) */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.4 }}
-        className="mt-16 relative w-full max-w-4xl"
+        className="mt-16 w-full max-w-5xl z-10"
       >
-        {/* We use our animate-float class from globals.css for continuous motion */}
-        <div className="glass-panel p-6 rounded-3xl mx-auto w-full md:w-2/3 animate-float relative z-10 border-white/60 shadow-xl">
-          <div className="flex items-start gap-4">
-            <div className="w-16 h-16 rounded-xl bg-primary/20 flex items-center justify-center shadow-inner">
-               <span className="text-3xl">🍔</span>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Cart 1 */}
+          <div className="glass-panel p-5 rounded-3xl animate-float border-white/60 shadow-lg hover:-translate-y-2 transition-transform cursor-pointer">
+            <div className="w-full h-32 bg-primary/20 rounded-2xl mb-4 overflow-hidden relative shadow-inner">
+              <Image src={cartImage} alt="Cart Logo" fill className="object-contain p-4" />
             </div>
-            <div className="flex-1 space-y-2">
-              <div className="h-5 w-1/3 bg-muted rounded-md" />
-              <div className="h-3 w-1/2 bg-muted/60 rounded-md" />
-              <div className="flex gap-2 mt-4">
-                <div className="h-6 w-16 bg-tertiary/30 rounded-full" />
-                <div className="h-6 w-16 bg-secondary/30 rounded-full" />
-              </div>
+            <h3 className="font-bold text-foreground text-lg">Uttara Burger Cart</h3>
+            <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+              <MapPin size={14} /> Sector 11, Uttara
+            </p>
+            <div className="mt-4 flex gap-2">
+              <span className="px-3 py-1 bg-tertiary/20 text-tertiary-foreground text-xs rounded-full font-medium">Open</span>
+              <span className="px-3 py-1 bg-secondary/20 text-secondary-foreground text-xs rounded-full font-medium">Burgers</span>
+              <span className="px-3 py-1 bg-secondary/20 text-secondary-foreground text-xs rounded-full font-medium">Pizza</span>
+            </div>
+          </div>
+
+          {/* Cart 2 */}
+          <div className="glass-panel p-5 rounded-3xl animate-float border-white/60 shadow-lg hover:-translate-y-2 transition-transform cursor-pointer" style={{ animationDelay: '1s' }}>
+            <div className="w-full h-32 bg-secondary/20 rounded-2xl mb-4 overflow-hidden relative shadow-inner flex items-center justify-center">
+              <Image src={cartImage} alt="Cart Logo" fill className="object-contain p-4" />
+            </div>
+            <h3 className="font-bold text-foreground text-lg">Chui Jhal Mama Stand</h3>
+            <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+              <MapPin size={14} /> Rabindra Sarani, Uttara
+            </p>
+            <div className="mt-4 flex gap-2">
+              <span className="px-3 py-1 bg-tertiary/20 text-tertiary-foreground text-xs rounded-full font-medium">Open</span>
+              <span className="px-3 py-1 bg-primary/20 text-primary-foreground text-xs rounded-full font-medium">Beef</span>
+              <span className="px-3 py-1 bg-primary/20 text-primary-foreground text-xs rounded-full font-medium">Chui Gosto</span>
+            </div>
+          </div>
+
+          {/* Cart 3 */}
+          <div className="glass-panel p-5 rounded-3xl animate-float border-white/60 shadow-lg hover:-translate-y-2 transition-transform cursor-pointer" style={{ animationDelay: '2s' }}>
+            <div className="w-full h-32 bg-tertiary/20 rounded-2xl mb-4 overflow-hidden relative shadow-inner flex items-center justify-center">
+              <Image src={cartImage} alt="Cart Logo" fill className="object-contain p-4" />
+            </div>
+            <h3 className="font-bold text-foreground text-lg">Talukdar Chotpoti & Fuchka House</h3>
+            <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+              <MapPin size={14} /> Sector 13 Lake, Uttara
+            </p>
+            <div className="mt-4 flex gap-2">
+              <span className="px-3 py-1 bg-tertiary/20 text-tertiary-foreground text-xs rounded-full font-medium">Open</span>
+              <span className="px-3 py-1 bg-muted text-muted-foreground text-xs rounded-full font-medium">Fuchka</span>
+              <span className="px-3 py-1 bg-muted text-muted-foreground text-xs rounded-full font-medium">Chotpoti</span>
             </div>
           </div>
         </div>
-        {/* Decorative backdrop for the widget */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-gradient-to-b from-primary/10 to-transparent rounded-[3rem] -z-10 blur-xl" />
       </motion.div>
     </section>
   );

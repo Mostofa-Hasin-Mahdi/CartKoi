@@ -22,12 +22,12 @@ export default function NavBar() {
         </Link>
       </div>
 
-      <nav className="hidden md:flex items-center gap-6">
-        <Link href="#explore" className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1">
-          <MapPin size={16} /> Explore
+      <nav className="flex items-center gap-3 md:gap-6">
+        <Link href="#explore" className="text-xs md:text-sm font-medium hover:text-primary transition-colors flex items-center gap-1">
+          <MapPin size={16} /> <span className="hidden sm:inline">Explore</span>
         </Link>
-        <Link href="#owners" className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1">
-          <User size={16} /> For Owners
+        <Link href="#owners" className="text-xs md:text-sm font-medium hover:text-primary transition-colors flex items-center gap-1">
+          <User size={16} /> <span className="hidden sm:inline">For Owners</span>
         </Link>
       </nav>
 
