@@ -81,18 +81,18 @@
   
   /* 
    * BRAND COLORS
-   * Primary: The "Widget Carts" light blue requested by the design.
+   * Primary: The "Widget Carts" light blue requested by the design (#74B3FF).
    * Secondary: Soft peach/coral for a warm, appetizing accent.
    * Tertiary: Soft mint green for success/freshness indicators.
    */
-  --primary: oklch(0.92 0.04 240); /* Light Blue (#D9EAFD) */
+  --primary: #74B3FF; /* Noticeably darker blue for contrast */
   --primary-foreground: oklch(0.2 0.05 240); /* Navy text on primary */
   
   --secondary: oklch(0.92 0.04 40); /* Soft Peach */
   --secondary-foreground: oklch(0.2 0.05 40);
   
   --tertiary: oklch(0.94 0.04 150); /* Soft Mint Green */
-  --cart-widget: oklch(0.92 0.04 240); /* Same as primary, explicitly named */
+  --cart-widget: #74B3FF; /* Same as primary, explicitly named */
 
   --muted: oklch(0.96 0.01 240);
   --muted-foreground: oklch(0.55 0.02 240);
