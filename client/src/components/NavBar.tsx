@@ -16,7 +16,7 @@ export default function NavBar() {
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="fixed z-50 flex items-center bg-slate-950 text-white border border-slate-800 shadow-2xl transition-all duration-300 bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 w-[95%] md:w-[650px] h-[64px] md:h-[68px] rounded-full px-4 md:px-8 justify-around"
+      className={`fixed z-50 flex items-center bg-slate-950 text-white border border-slate-800 shadow-2xl transition-all duration-300 bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 w-[95%] ${isAuthPage ? 'md:w-[380px]' : 'md:w-[520px]'} h-[64px] md:h-[68px] rounded-full px-4 md:px-8 justify-around`}
     >
       <nav className="flex items-center w-full justify-around md:justify-center md:gap-8 flex-1">
         {isAuthPage ? (
