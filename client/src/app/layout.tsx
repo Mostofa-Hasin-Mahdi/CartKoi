@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import NavBar from "@/components/NavBar";
+import TopBar from "@/components/TopBar";
 
 // We import Poppins from next/font/google to ensure it is optimized
 // and we don't have layout shift.
@@ -26,7 +28,11 @@ export default function RootLayout({
         min-h-full flex flex-col ensures that the page takes up at least 
         the full viewport height, preventing awkward empty spaces.
       */}
-      <body className="min-h-full flex flex-col relative">{children}</body>
+      <body className="min-h-full flex flex-col relative">
+        <TopBar />
+        {children}
+        <NavBar />
+      </body>
     </html>
   );
 }
