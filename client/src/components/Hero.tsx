@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search, Map, MapPin } from "lucide-react";
 
@@ -7,6 +8,15 @@ import Image from "next/image";
 import cartImage from "@/assets/cart.png";
 
 export default function Hero() {
+  const [carts, setCarts] = useState<any[]>([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("cartkoi_carts");
+    if (stored) {
+      setCarts(JSON.parse(stored));
+    }
+  }, []);
+
   return (
     // min-h-screen to cover the viewport. flex-col and justify-center for vertical centering.
     // pt-24 provides padding at the top so the floating navbar doesn't cover the content.
@@ -63,62 +73,47 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      {/* Cart Listings (Uttara Locations) */}
+      {/* Dynamic Cart Listings from LocalStorage */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.4 }}
         className="mt-16 w-full max-w-5xl z-10"
       >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Cart 1 */}
-          <div className="glass-panel p-5 rounded-3xl md:animate-float border-white/60 shadow-lg hover:-translate-y-2 transition-transform cursor-pointer">
-            <div className="w-full h-32 bg-primary/20 rounded-2xl mb-4 overflow-hidden relative shadow-inner">
-              <Image src={cartImage} alt="Cart Logo" fill className="object-contain p-4" />
-            </div>
-            <h3 className="font-bold text-foreground text-lg">Uttara Burger Cart</h3>
-            <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-              <MapPin size={14} /> Sector 11, Uttara
-            </p>
-            <div className="mt-4 flex gap-2">
-              <span className="px-3 py-1 bg-tertiary/20 text-tertiary-foreground text-xs rounded-full font-medium">Open</span>
-              <span className="px-3 py-1 bg-secondary/20 text-secondary-foreground text-xs rounded-full font-medium">Burgers</span>
-              <span className="px-3 py-1 bg-secondary/20 text-secondary-foreground text-xs rounded-full font-medium">Pizza</span>
-            </div>
+        {carts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {carts.slice(0, 3).map((cart, idx) => (
+              <div 
+                key={cart.id} 
+                className="glass-panel p-5 rounded-3xl md:animate-float border-white/60 shadow-lg hover:-translate-y-2 transition-transform cursor-pointer"
+                style={{ animationDelay: `${idx * 0.5}s` }}
+              >
+                <div className={`w-full h-32 rounded-2xl mb-4 overflow-hidden relative shadow-inner flex items-center justify-center ${idx % 3 === 0 ? 'bg-primary/20' : idx % 3 === 1 ? 'bg-secondary/20' : 'bg-tertiary/20'}`}>
+                  <Image src={cartImage} alt="Cart Logo" fill className="object-contain p-4" />
+                </div>
+                <h3 className="font-bold text-foreground text-lg line-clamp-1">{cart.name}</h3>
+                <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                  <MapPin size={14} /> {cart.location || "Location not set"}
+                </p>
+                <div className="mt-4 flex gap-2 flex-wrap">
+                  <span className={`px-3 py-1 text-xs rounded-full font-medium ${cart.isOpen ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                    {cart.isOpen ? 'Open' : 'Closed'}
+                  </span>
+                  {cart.menuItems?.slice(0, 2).map((item: any) => (
+                    <span key={item.id} className="px-3 py-1 bg-secondary/20 text-secondary-foreground text-xs rounded-full font-medium truncate max-w-[100px]">
+                      {item.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
-
-          {/* Cart 2 */}
-          <div className="glass-panel p-5 rounded-3xl md:animate-float border-white/60 shadow-lg hover:-translate-y-2 transition-transform cursor-pointer" style={{ animationDelay: '1s' }}>
-            <div className="w-full h-32 bg-secondary/20 rounded-2xl mb-4 overflow-hidden relative shadow-inner flex items-center justify-center">
-              <Image src={cartImage} alt="Cart Logo" fill className="object-contain p-4" />
-            </div>
-            <h3 className="font-bold text-foreground text-lg">Chui Jhal Mama Stand</h3>
-            <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-              <MapPin size={14} /> Rabindra Sarani, Uttara
-            </p>
-            <div className="mt-4 flex gap-2">
-              <span className="px-3 py-1 bg-tertiary/20 text-tertiary-foreground text-xs rounded-full font-medium">Open</span>
-              <span className="px-3 py-1 bg-primary/20 text-primary-foreground text-xs rounded-full font-medium">Beef</span>
-              <span className="px-3 py-1 bg-primary/20 text-primary-foreground text-xs rounded-full font-medium">Chui Gosto</span>
-            </div>
+        ) : (
+          <div className="text-center p-8 glass-panel rounded-3xl border-white/60 shadow-md">
+            <h3 className="text-xl font-semibold text-foreground mb-2">No food carts found</h3>
+            <p className="text-muted-foreground">Sign in as an owner to create the first cart in this area!</p>
           </div>
-
-          {/* Cart 3 */}
-          <div className="glass-panel p-5 rounded-3xl md:animate-float border-white/60 shadow-lg hover:-translate-y-2 transition-transform cursor-pointer" style={{ animationDelay: '2s' }}>
-            <div className="w-full h-32 bg-tertiary/20 rounded-2xl mb-4 overflow-hidden relative shadow-inner flex items-center justify-center">
-              <Image src={cartImage} alt="Cart Logo" fill className="object-contain p-4" />
-            </div>
-            <h3 className="font-bold text-foreground text-lg">Talukdar Chotpoti & Fuchka House</h3>
-            <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-              <MapPin size={14} /> Sector 13 Lake, Uttara
-            </p>
-            <div className="mt-4 flex gap-2">
-              <span className="px-3 py-1 bg-tertiary/20 text-tertiary-foreground text-xs rounded-full font-medium">Open</span>
-              <span className="px-3 py-1 bg-muted text-muted-foreground text-xs rounded-full font-medium">Fuchka</span>
-              <span className="px-3 py-1 bg-muted text-muted-foreground text-xs rounded-full font-medium">Chotpoti</span>
-            </div>
-          </div>
-        </div>
+        )}
       </motion.div>
     </section>
   );
