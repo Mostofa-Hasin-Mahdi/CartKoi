@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Settings } from "lucide-react";
+import { Plus, Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Settings, Link as LinkIcon, Globe, Camera } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
-type ViewState = 'list' | 'create' | 'manage';
+type ViewState = 'list' | 'create' | 'cart_dashboard' | 'settings';
 
 export default function OwnerDashboard() {
   const { user, loading } = useAuth();
@@ -19,10 +19,16 @@ export default function OwnerDashboard() {
   // Form states for creating a new cart
   const [newCartName, setNewCartName] = useState("");
 
-  // States for the Cart management view
-  const [isOpen, setIsOpen] = useState(false);
+  // States for Cart Settings
   const [cartName, setCartName] = useState("");
   const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("Sector 11, Uttara");
+  const [foodpandaLink, setFoodpandaLink] = useState("");
+  const [facebookLink, setFacebookLink] = useState("");
+  const [instagramLink, setInstagramLink] = useState("");
+
+  // States for Cart Dashboard (Operations)
+  const [isOpen, setIsOpen] = useState(false);
   const [menuItems, setMenuItems] = useState<any[]>([]);
 
   useEffect(() => {
@@ -53,6 +59,10 @@ export default function OwnerDashboard() {
       id: Date.now().toString(),
       name: newCartName,
       description: "My new food cart",
+      location: "Sector 11, Uttara",
+      foodpandaLink: "",
+      facebookLink: "",
+      instagramLink: "",
       isOpen: false,
       menuItems: [
         { id: 1, name: "Classic Burger", price: 150, isAvailable: true },
@@ -65,22 +75,42 @@ export default function OwnerDashboard() {
     setView('list');
   };
 
-  const handleSelectCart = (cart: any) => {
+  const handleSelectCartDashboard = (cart: any) => {
+    setSelectedCartId(cart.id);
+    setCartName(cart.name); // Need name for the header
+    setIsOpen(cart.isOpen || false);
+    setMenuItems(cart.menuItems || []);
+    setView('cart_dashboard');
+  };
+
+  const handleSelectCartSettings = (e: React.MouseEvent, cart: any) => {
+    e.stopPropagation();
     setSelectedCartId(cart.id);
     setCartName(cart.name);
     setDescription(cart.description || "");
-    setIsOpen(cart.isOpen || false);
-    setMenuItems(cart.menuItems || []);
-    setView('manage');
+    setLocation(cart.location || "Sector 11, Uttara");
+    setFoodpandaLink(cart.foodpandaLink || "");
+    setFacebookLink(cart.facebookLink || "");
+    setInstagramLink(cart.instagramLink || "");
+    setView('settings');
   };
 
-  const handleSaveCartInfo = (e: React.FormEvent) => {
+  const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
     const updatedCarts = carts.map(c => 
-      c.id === selectedCartId ? { ...c, name: cartName, description, isOpen, menuItems } : c
+      c.id === selectedCartId ? { 
+        ...c, 
+        name: cartName, 
+        description, 
+        location,
+        foodpandaLink,
+        facebookLink,
+        instagramLink
+      } : c
     );
     saveCarts(updatedCarts);
-    alert("Cart info saved! (Mocked via localStorage)");
+    alert("Cart settings saved! (Mocked via localStorage)");
+    setView('list');
   };
 
   // Keep toggle state in sync with the carts array when saved
@@ -177,7 +207,11 @@ export default function OwnerDashboard() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {carts.map(cart => (
-                    <div key={cart.id} className="glass-panel p-6 rounded-[1.5rem] border border-white/60 shadow-md hover:shadow-lg transition-all flex flex-col">
+                    <div 
+                      key={cart.id} 
+                      onClick={() => handleSelectCartDashboard(cart)}
+                      className="glass-panel p-6 rounded-[1.5rem] border border-white/60 shadow-md hover:shadow-lg transition-all flex flex-col cursor-pointer hover:scale-[1.02]"
+                    >
                       <div className="flex justify-between items-start mb-4">
                         <div className="p-3 bg-primary/10 rounded-xl text-primary">
                           <Store size={24} />
@@ -191,10 +225,10 @@ export default function OwnerDashboard() {
                       
                       <div className="mt-auto flex gap-2">
                         <button
-                          onClick={() => handleSelectCart(cart)}
-                          className="flex-1 py-2 rounded-xl bg-white/50 hover:bg-white/80 border border-white/60 font-semibold text-sm transition-all flex items-center justify-center gap-1.5"
+                          onClick={(e) => handleSelectCartSettings(e, cart)}
+                          className="flex-1 py-2 rounded-xl bg-white/50 hover:bg-white/80 border border-white/60 font-semibold text-sm transition-all flex items-center justify-center gap-1.5 z-10"
                         >
-                          <Settings size={14} /> Manage
+                          <Settings size={14} /> Settings
                         </button>
                       </div>
                     </div>
@@ -255,9 +289,118 @@ export default function OwnerDashboard() {
           </motion.div>
         )}
 
-        {view === 'manage' && (
+        {view === 'settings' && (
           <motion.div
-            key="manage"
+            key="settings"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3 }}
+            className="w-full max-w-2xl mx-auto space-y-6"
+          >
+            <button
+              onClick={() => setView('list')}
+              className="flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground mb-2 transition-colors"
+            >
+              <ArrowLeft size={16} /> Back to All Carts
+            </button>
+
+            <div className="mb-4">
+              <h1 className="text-3xl font-bold text-foreground tracking-tight mb-2">Cart Settings</h1>
+              <p className="text-muted-foreground">Update public profile and social links for {cartName}.</p>
+            </div>
+
+            <div className="glass-panel p-6 md:p-8 rounded-[2rem] border border-white/60 shadow-lg">
+              <form onSubmit={handleSaveSettings} className="space-y-5">
+                
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-foreground ml-1 flex items-center gap-1"><Store size={14} className="text-primary"/> Cart Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={cartName}
+                    onChange={(e) => setCartName(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl bg-white/50 border border-white/60 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-foreground ml-1">Description</label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={3}
+                    className="w-full px-4 py-2.5 rounded-xl bg-white/50 border border-white/60 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm resize-none"
+                    placeholder="Describe your cart..."
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-foreground ml-1 flex items-center gap-1"><MapPin size={14} className="text-primary"/> Location</label>
+                  <input
+                    type="text"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl bg-white/50 border border-white/60 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm"
+                    placeholder="E.g. Sector 11, Uttara"
+                  />
+                  <p className="text-[10px] text-muted-foreground ml-1">Location will eventually be powered by GPS in the final version.</p>
+                </div>
+
+                <hr className="border-white/40 my-6" />
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-foreground">Social & Delivery Links</h3>
+                  
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-foreground ml-1 flex items-center gap-1"><LinkIcon size={14} className="text-primary"/> FoodPanda Link</label>
+                    <input
+                      type="url"
+                      value={foodpandaLink}
+                      onChange={(e) => setFoodpandaLink(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white/50 border border-white/60 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm"
+                      placeholder="https://www.foodpanda.bd/..."
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-foreground ml-1 flex items-center gap-1"><Globe size={14} className="text-blue-500"/> Facebook</label>
+                      <input
+                        type="url"
+                        value={facebookLink}
+                        onChange={(e) => setFacebookLink(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl bg-white/50 border border-white/60 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm"
+                        placeholder="https://facebook.com/..."
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-foreground ml-1 flex items-center gap-1"><Camera size={14} className="text-pink-500"/> Instagram</label>
+                      <input
+                        type="url"
+                        value={instagramLink}
+                        onChange={(e) => setInstagramLink(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl bg-white/50 border border-white/60 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm"
+                        placeholder="https://instagram.com/..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-2.5 mt-4 rounded-xl bg-primary text-primary-foreground font-semibold shadow-md hover:shadow-lg transition-all text-sm"
+                >
+                  Save Settings
+                </button>
+              </form>
+            </div>
+          </motion.div>
+        )}
+
+        {view === 'cart_dashboard' && (
+          <motion.div
+            key="cart_dashboard"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
@@ -274,8 +417,8 @@ export default function OwnerDashboard() {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-4">
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight mb-2">Manage {cartName}</h1>
-                <p className="text-muted-foreground">Update details, menu, and operating status.</p>
+                <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight mb-2">{cartName} Dashboard</h1>
+                <p className="text-muted-foreground">Manage operations and live menu availability.</p>
               </div>
 
               {/* Master Toggle */}
@@ -301,91 +444,52 @@ export default function OwnerDashboard() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Cart Information Form */}
-              <div className="glass-panel p-6 md:p-8 rounded-[2rem] border border-white/60 shadow-lg">
-                <div className="flex items-center gap-2 mb-6">
-                  <Store className="text-primary" size={24} />
-                  <h2 className="text-xl font-bold text-foreground">Cart Details</h2>
+            {/* Menu Management - Expanded full width for dashboard */}
+            <div className="glass-panel p-6 md:p-8 rounded-[2rem] border border-white/60 shadow-lg flex flex-col min-h-[400px]">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-xl font-bold text-foreground">Live Menu Stock</h2>
+                  <p className="text-xs text-muted-foreground mt-1">Toggle items as they sell out so customers know what's available.</p>
                 </div>
-
-                <form onSubmit={handleSaveCartInfo} className="space-y-4">
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-foreground ml-1">Cart Name</label>
-                    <input
-                      type="text"
-                      value={cartName}
-                      onChange={(e) => setCartName(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl bg-white/50 border border-white/60 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-foreground ml-1">Description</label>
-                    <textarea
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      rows={3}
-                      className="w-full px-4 py-2.5 rounded-xl bg-white/50 border border-white/60 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm resize-none"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-foreground ml-1">Location</label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                      <input
-                        type="text"
-                        value="Sector 11, Uttara"
-                        disabled
-                        className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-100/50 border border-white/60 text-slate-500 text-sm cursor-not-allowed"
-                      />
-                    </div>
-                    <p className="text-[10px] text-muted-foreground ml-1">Location updates will require GPS access in the final version.</p>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full py-2.5 mt-2 rounded-xl bg-primary text-primary-foreground font-semibold shadow-md hover:shadow-lg transition-all text-sm"
-                  >
-                    Save Details
-                  </button>
-                </form>
+                <button 
+                  onClick={addNewItem}
+                  className="flex items-center gap-1 text-xs font-semibold bg-tertiary/20 text-tertiary-foreground px-3 py-1.5 rounded-full hover:bg-tertiary/30 transition-colors"
+                >
+                  <Plus size={14} /> Add Item
+                </button>
               </div>
 
-              {/* Menu Management */}
-              <div className="glass-panel p-6 md:p-8 rounded-[2rem] border border-white/60 shadow-lg flex flex-col">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-foreground">Menu Items</h2>
-                  <button 
-                    onClick={addNewItem}
-                    className="flex items-center gap-1 text-xs font-semibold bg-tertiary/20 text-tertiary-foreground px-3 py-1.5 rounded-full hover:bg-tertiary/30 transition-colors"
-                  >
-                    <Plus size={14} /> Add Item
-                  </button>
-                </div>
-
-                <div className="flex-1 space-y-3 overflow-y-auto pr-1">
-                  {menuItems.map(item => (
-                    <div key={item.id} className="flex items-center justify-between bg-white/40 p-3 rounded-xl border border-white/40">
-                      <div>
-                        <p className="font-semibold text-sm text-foreground">{item.name}</p>
-                        <p className="text-xs text-muted-foreground">৳ {item.price}</p>
-                      </div>
-                      
-                      <button
-                        onClick={() => toggleMenuItem(item.id)}
-                        className={`px-3 py-1 text-xs font-bold rounded-full flex items-center gap-1 transition-colors ${
-                          item.isAvailable 
-                            ? 'bg-green-100 text-green-700 hover:bg-green-200' 
-                            : 'bg-red-100 text-red-700 hover:bg-red-200'
-                        }`}
-                      >
-                        {item.isAvailable ? <><Check size={12}/> Available</> : <><X size={12}/> Sold Out</>}
-                      </button>
+              <div className="flex-1 space-y-3 overflow-y-auto pr-1">
+                {menuItems.map(item => (
+                  <div key={item.id} className="flex items-center justify-between bg-white/40 p-4 rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/60">
+                    <div>
+                      <p className="font-semibold text-base text-foreground">{item.name}</p>
+                      <p className="text-sm text-muted-foreground">৳ {item.price}</p>
                     </div>
-                  ))}
-                </div>
+                    
+                    <button
+                      onClick={() => toggleMenuItem(item.id)}
+                      className={`px-4 py-2 text-sm font-bold rounded-full flex items-center gap-1.5 transition-colors ${
+                        item.isAvailable 
+                          ? 'bg-green-100 text-green-700 hover:bg-green-200' 
+                          : 'bg-red-100 text-red-700 hover:bg-red-200'
+                      }`}
+                    >
+                      {item.isAvailable ? <><Check size={16}/> Available</> : <><X size={16}/> Sold Out</>}
+                    </button>
+                  </div>
+                ))}
+                {menuItems.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                    <p>No menu items yet.</p>
+                    <button 
+                      onClick={addNewItem}
+                      className="mt-2 text-primary text-sm font-semibold hover:underline"
+                    >
+                      Add your first item
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
