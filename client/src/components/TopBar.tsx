@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { MapPin, User, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { usePathname } from "next/navigation";
 
 export default function TopBar() {
   const { user, loading } = useAuth();
+  const pathname = usePathname();
 
   return (
     <div className="absolute top-0 left-0 w-full p-4 md:p-6 grid grid-cols-3 items-center z-50 gap-2">
@@ -16,12 +18,13 @@ export default function TopBar() {
         <span className="hidden sm:inline whitespace-nowrap">Uttara, Dhaka</span>
       </div>
 
-      {/* Center Logo */}
+      {/* Center Logo - Hidden on explore page because it has its own panel */}
       <div className="justify-self-center">
-        {/* We use a glass pill for the logo so it stands out from the background while keeping the soft theme */}
-        <Link href="/" className="text-lg md:text-2xl font-black text-foreground tracking-tight bg-white/60 backdrop-blur-md px-4 py-1.5 md:px-6 md:py-2 rounded-full border border-white/60 shadow-sm whitespace-nowrap flex items-center">
-          Cart<span className="text-primary">Koi</span>
-        </Link>
+        {pathname !== "/explore" && (
+          <Link href="/" className="text-lg md:text-2xl font-black text-foreground tracking-tight bg-white/60 backdrop-blur-md px-4 py-1.5 md:px-6 md:py-2 rounded-full border border-white/60 shadow-sm whitespace-nowrap flex items-center">
+            Cart<span className="text-primary">Koi</span>
+          </Link>
+        )}
       </div>
 
       {/* Username Pill Top Right */}

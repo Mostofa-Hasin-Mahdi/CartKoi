@@ -36,11 +36,11 @@ export default function NavBar() {
           </>
         ) : (
           <>
-            <Link href="/#explore" className="flex flex-col md:flex-row items-center gap-1 text-slate-400 hover:text-white transition-colors">
+            <Link href="/explore" className={`flex flex-col md:flex-row items-center gap-1 transition-colors ${pathname === '/explore' ? 'text-primary' : 'text-slate-400 hover:text-white'}`}>
               <MapPin size={22} className="md:w-4 md:h-4" /> 
               <span className="text-[10px] md:text-sm font-medium mt-1 md:mt-0">Explore</span>
             </Link>
-            <Link href="/#carts" className="flex flex-col md:flex-row items-center gap-1 text-slate-400 hover:text-white transition-colors">
+            <Link href="/" className={`flex flex-col md:flex-row items-center gap-1 transition-colors ${pathname === '/' ? 'text-primary' : 'text-slate-400 hover:text-white'}`}>
               <Store size={22} className="md:w-4 md:h-4" /> 
               <span className="text-[10px] md:text-sm font-medium mt-1 md:mt-0">Cart</span>
             </Link>
