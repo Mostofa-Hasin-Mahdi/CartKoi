@@ -31,10 +31,9 @@ export default function MapComponent({ carts }: { carts: any[] }) {
   // Default center around Uttara, Dhaka
   const defaultCenter: [number, number] = [23.8728, 90.3984];
 
-  // Helper to generate a fake location near Uttara for carts without lat/lng
   const getCartLocation = (cart: any, index: number): [number, number] => {
     if (cart.lat && cart.lng) return [cart.lat, cart.lng];
-    // Randomize slightly around the center
+    // Randomize slightly around the center for carts without coordinates
     const offsetLat = (index % 3 - 1) * 0.005;
     const offsetLng = (index % 2 === 0 ? 1 : -1) * 0.005 * index;
     return [defaultCenter[0] + offsetLat, defaultCenter[1] + offsetLng];
@@ -72,29 +71,18 @@ export default function MapComponent({ carts }: { carts: any[] }) {
       const popupContent = `
         <div class="p-1 min-w-[150px]">
           <h3 class="font-bold text-base m-0 p-0 leading-tight text-slate-900">${cart.name}</h3>
-          <p class="text-xs text-gray-500 mt-1 mb-2">${cart.location || "Sector 11, Uttara"}</p>
-          <div class="px-2 py-0.5 rounded text-[10px] inline-block font-bold mb-2 ${cart.isOpen ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">
-            ${cart.isOpen ? 'Open Now' : 'Closed'}
+          <p class="text-xs text-gray-500 mt-1 mb-2">CartKoi Partner</p>
+          <div class="px-2 py-0.5 rounded text-[10px] inline-block font-bold mb-2 ${cart.is_open ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">
+            ${cart.is_open ? 'Open Now' : 'Closed'}
           </div>
-          ${cart.menuItems && cart.menuItems.length > 0 ? `
-            <div class="mt-1 border-t pt-2">
-              <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Top Items</p>
-              ${cart.menuItems.slice(0, 2).map((item: any) => `
-                <div class="flex justify-between text-xs text-slate-800">
-                  <span class="truncate max-w-[100px]">${item.name}</span>
-                  <span class="font-semibold text-gray-700">৳${item.price}</span>
-                </div>
-              `).join('')}
-            </div>
-          ` : ''}
-          <button class="w-full mt-3 bg-blue-600 text-white text-xs py-1.5 rounded font-bold">
-            View Full Cart
-          </button>
+          <a href="/cart/${cart.id}" class="block text-center w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white text-xs py-2 rounded font-bold transition-colors">
+            View Menu
+          </a>
         </div>
       `;
 
       L.marker(position, {
-        icon: cart.isOpen ? openIcon : customIcon
+        icon: cart.is_open ? openIcon : customIcon
       })
       .bindPopup(popupContent)
       .addTo(map);

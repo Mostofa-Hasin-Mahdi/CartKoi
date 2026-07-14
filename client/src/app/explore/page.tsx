@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { MapPin, Loader2, Store } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
 
 // Dynamically import the map component to avoid SSR issues with Leaflet
 const MapComponent = dynamic(() => import("@/components/MapComponent"), { 
@@ -22,10 +23,22 @@ export default function ExplorePage() {
 
   useEffect(() => {
     setIsMounted(true);
-    const stored = localStorage.getItem("cartkoi_carts");
-    if (stored) {
-      setCarts(JSON.parse(stored));
-    }
+    const fetchCarts = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('carts')
+        .select('*')
+        .not('lat', 'is', null)
+        .not('lng', 'is', null);
+
+      if (error) {
+        console.error("Error fetching carts:", error);
+      } else if (data) {
+        setCarts(data);
+      }
+    };
+
+    fetchCarts();
   }, []);
 
   if (!isMounted) return null;
@@ -46,7 +59,7 @@ export default function ExplorePage() {
         <div className="flex gap-2">
           <div className="px-3 py-1 rounded-full bg-green-100 border border-green-200 text-green-800 text-xs font-bold flex items-center gap-1 shadow-sm">
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-            {carts.filter(c => c.isOpen).length} Open
+            {carts.filter(c => c.is_open).length} Open
           </div>
           <div className="px-3 py-1 rounded-full bg-slate-200 border border-slate-300 text-slate-800 text-xs font-bold flex items-center gap-1 shadow-sm">
             <Store size={12} />

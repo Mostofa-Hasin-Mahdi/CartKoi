@@ -30,3 +30,5 @@ graphify-out/run_build_merge.py
 graphify-out/run_cache.py
 graphify-out/run_merge.py
 graphify-out/run_step4.py
+docs/rls_tests.sql
+docs/seed_data.sql
