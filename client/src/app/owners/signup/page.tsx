@@ -4,20 +4,48 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useAuth } from "@/hooks/useAuth";
+import { createClient } from "@/utils/supabase/client";
 
 export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useAuth();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const supabase = createClient();
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would register a new user in the backend
-    login({ name: name || "New User", email });
-    router.push("/owners/dashboard");
+    setError(null);
+    setLoading(true);
+
+    try {
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name,
+            role: "owner",
+          },
+        },
+      });
+
+      if (signUpError) throw signUpError;
+
+      // Because email confirmation is disabled, user is signed in immediately
+      if (data.session) {
+        router.push("/owners/dashboard");
+      } else {
+        // Fallback just in case
+        router.push("/owners/login");
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to sign up");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -39,6 +67,12 @@ export default function SignupPage() {
           </div>
 
           <form onSubmit={handleSignup} className="space-y-5">
+            {error && (
+              <div className="bg-red-50 text-red-500 p-3 rounded-xl text-sm text-center">
+                {error}
+              </div>
+            )}
+            
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground ml-1">Full Name</label>
               <input
@@ -48,6 +82,7 @@ export default function SignupPage() {
                 onChange={(e) => setName(e.target.value)}
                 className="w-full px-4 py-3 rounded-2xl bg-white/50 border border-white/60 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm placeholder:text-slate-400"
                 placeholder="Mostofa Hasin"
+                disabled={loading}
               />
             </div>
 
@@ -60,6 +95,7 @@ export default function SignupPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 rounded-2xl bg-white/50 border border-white/60 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm placeholder:text-slate-400"
                 placeholder="mostofa@example.com"
+                disabled={loading}
               />
             </div>
             
@@ -72,14 +108,16 @@ export default function SignupPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 rounded-2xl bg-white/50 border border-white/60 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm placeholder:text-slate-400"
                 placeholder="••••••••"
+                disabled={loading}
               />
             </div>
 
             <button
               type="submit"
-              className="w-full py-3.5 mt-2 rounded-full bg-primary text-primary-foreground font-semibold shadow-md hover:shadow-lg hover:opacity-90 transition-all"
+              disabled={loading}
+              className="w-full py-3.5 mt-2 rounded-full bg-primary text-primary-foreground font-semibold shadow-md hover:shadow-lg hover:opacity-90 transition-all disabled:opacity-50"
             >
-              Sign Up
+              {loading ? "Signing up..." : "Sign Up"}
             </button>
           </form>
 

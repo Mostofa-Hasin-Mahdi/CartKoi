@@ -65,7 +65,7 @@ export default function NavBar() {
                 <span className="text-[10px] font-medium mt-1">Login</span>
               </Link>
             ) : (
-              <button onClick={logout} className="flex md:hidden flex-col items-center gap-1 text-red-400 hover:text-red-300 transition-colors">
+              <button onClick={async () => await logout()} className="flex md:hidden flex-col items-center gap-1 text-red-400 hover:text-red-300 transition-colors">
                 <LogOut size={22} /> 
                 <span className="text-[10px] font-medium mt-1">Logout</span>
               </button>
@@ -86,8 +86,8 @@ export default function NavBar() {
             </Link>
           ) : (
             <button 
-              onClick={() => {
-                logout();
+              onClick={async () => {
+                await logout();
                 // Optionally redirect to home if logging out from dashboard
                 if(pathname === '/owners/dashboard') window.location.href = '/';
               }}

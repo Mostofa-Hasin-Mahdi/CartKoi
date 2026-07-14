@@ -17,3 +17,16 @@ graphify-out/graph.html
 graphify-out/graph.json
 graphify-out/GRAPH_REPORT.md
 graphify-out/manifest.json
+graphify-out/.graphify_analysis.json
+graphify-out/.graphify_ast.json
+graphify-out/.graphify_detect.json
+graphify-out/.graphify_extract.json
+graphify-out/.graphify_incremental.json
+graphify-out/.graphify_old.json
+graphify-out/.graphify_semantic.json
+graphify-out/cache/ast/c21093b11d58c40af09cb5c3e8955e900763d752e2192285a3861c9d748d9297.json
+graphify-out/run_ast.py
+graphify-out/run_build_merge.py
+graphify-out/run_cache.py
+graphify-out/run_merge.py
+graphify-out/run_step4.py
