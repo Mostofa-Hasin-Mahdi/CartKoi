@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Settings, Link as LinkIcon, Globe, Camera, Clock } from "lucide-react";
+import { Plus, Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Settings, Link as LinkIcon, Globe, Camera, Clock, Edit2, Trash2, Save } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { createClient } from "@/utils/supabase/client";
 
@@ -43,6 +43,15 @@ export default function OwnerDashboard() {
   // States for Cart Dashboard (Operations)
   const [isOpen, setIsOpen] = useState(false);
   const [menuItems, setMenuItems] = useState<any[]>([]);
+
+  // Menu Management States
+  const [isAddingItem, setIsAddingItem] = useState(false);
+  const [newItemName, setNewItemName] = useState("");
+  const [newItemPrice, setNewItemPrice] = useState("");
+  
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editItemName, setEditItemName] = useState("");
+  const [editItemPrice, setEditItemPrice] = useState("");
 
   useEffect(() => {
     if (!loading && !user) {
@@ -198,8 +207,70 @@ export default function OwnerDashboard() {
     }
   };
 
-  const addNewItem = () => {
-    alert("Full Menu Management will be implemented in Phase 6!");
+  const saveNewItem = async () => {
+    if (!newItemName.trim() || !newItemPrice || !selectedCartId) return;
+    
+    const { data, error } = await supabase
+      .from("menu_items")
+      .insert({
+        cart_id: selectedCartId,
+        name: newItemName,
+        price: Number(newItemPrice),
+        is_available: true
+      })
+      .select()
+      .single();
+
+    if (error) {
+      alert("Failed to add menu item.");
+    } else if (data) {
+      setMenuItems([data, ...menuItems]);
+      setIsAddingItem(false);
+      setNewItemName("");
+      setNewItemPrice("");
+    }
+  };
+
+  const deleteMenuItem = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this item?")) return;
+
+    const { error } = await supabase
+      .from("menu_items")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      alert("Failed to delete menu item.");
+    } else {
+      setMenuItems(menuItems.filter(item => item.id !== id));
+    }
+  };
+
+  const startEditing = (item: any) => {
+    setEditingItemId(item.id);
+    setEditItemName(item.name);
+    setEditItemPrice(item.price.toString());
+  };
+
+  const saveEditedItem = async (id: string) => {
+    if (!editItemName.trim() || !editItemPrice) return;
+
+    const { error } = await supabase
+      .from("menu_items")
+      .update({
+        name: editItemName,
+        price: Number(editItemPrice)
+      })
+      .eq("id", id);
+
+    if (error) {
+      alert("Failed to update menu item.");
+    } else {
+      setMenuItems(menuItems.map(item => 
+        item.id === id ? { ...item, name: editItemName, price: Number(editItemPrice) } : item
+      ));
+      setEditingItemId(null);
+    }
   };
 
   if (loading || !user || isLoadingCarts) {
@@ -531,39 +602,95 @@ export default function OwnerDashboard() {
                   <h2 className="text-xl font-bold text-foreground">Live Menu Stock</h2>
                   <p className="text-xs text-muted-foreground mt-1">Toggle items as they sell out so customers know what's available.</p>
                 </div>
-                <button 
-                  onClick={addNewItem}
-                  className="flex items-center gap-1 text-xs font-semibold bg-tertiary/20 text-tertiary-foreground px-3 py-1.5 rounded-full hover:bg-tertiary/30 transition-colors"
-                >
-                  <Plus size={14} /> Add Item
-                </button>
+                {!isAddingItem && (
+                  <button 
+                    onClick={() => setIsAddingItem(true)}
+                    className="flex items-center gap-1 text-xs font-semibold bg-tertiary/20 text-tertiary-foreground px-3 py-1.5 rounded-full hover:bg-tertiary/30 transition-colors"
+                  >
+                    <Plus size={14} /> Add Item
+                  </button>
+                )}
               </div>
+
+              {isAddingItem && (
+                <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 mb-4 flex flex-col md:flex-row gap-3">
+                  <input
+                    type="text"
+                    placeholder="Item Name"
+                    value={newItemName}
+                    onChange={e => setNewItemName(e.target.value)}
+                    className="flex-1 px-3 py-2 rounded-lg bg-white/80 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Price (৳)"
+                    value={newItemPrice}
+                    onChange={e => setNewItemPrice(e.target.value)}
+                    className="w-full md:w-32 px-3 py-2 rounded-lg bg-white/80 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  />
+                  <div className="flex gap-2">
+                    <button onClick={saveNewItem} className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold shadow-sm hover:bg-primary/90">Save</button>
+                    <button onClick={() => setIsAddingItem(false)} className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm font-bold hover:bg-slate-300">Cancel</button>
+                  </div>
+                </div>
+              )}
 
               <div className="flex-1 space-y-3 overflow-y-auto pr-1">
                 {menuItems.map(item => (
-                  <div key={item.id} className="flex items-center justify-between bg-white/40 p-4 rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/60">
-                    <div>
-                      <p className="font-semibold text-base text-foreground">{item.name}</p>
-                      <p className="text-sm text-muted-foreground">৳ {item.price}</p>
-                    </div>
+                  <div key={item.id} className="flex items-center justify-between bg-white/40 p-4 rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/60 group">
+                    {editingItemId === item.id ? (
+                      <div className="flex-1 flex flex-col md:flex-row gap-3 mr-4">
+                        <input
+                          type="text"
+                          value={editItemName}
+                          onChange={e => setEditItemName(e.target.value)}
+                          className="flex-1 px-3 py-1.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        />
+                        <input
+                          type="number"
+                          value={editItemPrice}
+                          onChange={e => setEditItemPrice(e.target.value)}
+                          className="w-full md:w-24 px-3 py-1.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        />
+                        <div className="flex gap-1">
+                          <button onClick={() => saveEditedItem(item.id)} className="p-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200"><Save size={16}/></button>
+                          <button onClick={() => setEditingItemId(null)} className="p-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300"><X size={16}/></button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex-1">
+                        <p className="font-semibold text-base text-foreground">{item.name}</p>
+                        <p className="text-sm text-muted-foreground">৳ {item.price}</p>
+                      </div>
+                    )}
                     
-                    <button
-                      onClick={() => toggleMenuItem(item.id, item.is_available)}
-                      className={`px-4 py-2 text-sm font-bold rounded-full flex items-center gap-1.5 transition-colors ${
-                        item.is_available 
-                          ? 'bg-green-100 text-green-700 hover:bg-green-200' 
-                          : 'bg-red-100 text-red-700 hover:bg-red-200'
-                      }`}
-                    >
-                      {item.is_available ? <><Check size={16}/> Available</> : <><X size={16}/> Sold Out</>}
-                    </button>
+                    {editingItemId !== item.id && (
+                      <div className="flex items-center gap-2">
+                        {/* Edit & Delete Actions (Hidden on mobile unless hovered, or always visible) */}
+                        <div className="flex opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button onClick={() => startEditing(item)} className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"><Edit2 size={16}/></button>
+                          <button onClick={() => deleteMenuItem(item.id)} className="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"><Trash2 size={16}/></button>
+                        </div>
+                        
+                        <button
+                          onClick={() => toggleMenuItem(item.id, item.is_available)}
+                          className={`px-4 py-2 text-sm font-bold rounded-full flex items-center gap-1.5 transition-colors ${
+                            item.is_available 
+                              ? 'bg-green-100 text-green-700 hover:bg-green-200' 
+                              : 'bg-red-100 text-red-700 hover:bg-red-200'
+                          }`}
+                        >
+                          {item.is_available ? <><Check size={16}/> Available</> : <><X size={16}/> Sold Out</>}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
-                {menuItems.length === 0 && (
+                {menuItems.length === 0 && !isAddingItem && (
                   <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                     <p>No menu items yet.</p>
                     <button 
-                      onClick={addNewItem}
+                      onClick={() => setIsAddingItem(true)}
                       className="mt-2 text-primary text-sm font-semibold hover:underline"
                     >
                       Add your first item
