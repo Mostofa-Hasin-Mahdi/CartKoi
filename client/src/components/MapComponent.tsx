@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { formatHoursForDisplay } from "@/utils/hours";
 
 // Fix missing marker icons in leaflet with next.js
 const customIcon = new L.Icon({
@@ -75,6 +76,7 @@ export default function MapComponent({ carts }: { carts: any[] }) {
           <div class="px-2 py-0.5 rounded text-[10px] inline-block font-bold mb-2 ${cart.is_open ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">
             ${cart.is_open ? 'Open Now' : 'Closed'}
           </div>
+          ${cart.operating_hours ? `<p class="text-[10px] text-gray-500 mb-2 font-medium">${formatHoursForDisplay(cart.operating_hours)}</p>` : ''}
           <a href="/cart/${cart.id}" class="block text-center w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white text-xs py-2 rounded font-bold transition-colors">
             View Menu
           </a>

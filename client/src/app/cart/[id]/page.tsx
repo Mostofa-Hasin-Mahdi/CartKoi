@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { Loader2, ArrowLeft, Store, MapPin, ExternalLink, Navigation, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2, ArrowLeft, Store, MapPin, ExternalLink, Navigation, Clock, CheckCircle2, XCircle, CalendarDays } from "lucide-react";
+import { formatHoursForDisplay, OperatingHours } from "@/utils/hours";
 import NavBar from "@/components/NavBar";
 
 export default function CartDetailPage() {
@@ -120,6 +121,15 @@ export default function CartDetailPage() {
                 {cart.is_open ? 'Accepting Orders' : 'Currently Closed'}
               </span>
             </div>
+            {cart.operating_hours && (
+              <div className="flex flex-col">
+                <span className="text-[10px] uppercase font-bold text-slate-400 mb-1">Today's Schedule</span>
+                <span className="text-sm font-semibold text-slate-700 flex items-center gap-1">
+                  <CalendarDays size={14} className="text-blue-500" />
+                  {formatHoursForDisplay(cart.operating_hours as OperatingHours).replace('Usually Open: ', '')}
+                </span>
+              </div>
+            )}
             <div className="flex flex-col">
               <span className="text-[10px] uppercase font-bold text-slate-400 mb-1">Coordinates</span>
               <span className="text-sm font-semibold text-slate-700 flex items-center gap-1">

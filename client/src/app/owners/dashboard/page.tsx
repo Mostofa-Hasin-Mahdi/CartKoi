@@ -3,18 +3,21 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Settings, Link as LinkIcon, Globe, Camera } from "lucide-react";
+import { Plus, Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Settings, Link as LinkIcon, Globe, Camera, Clock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { createClient } from "@/utils/supabase/client";
 
 type ViewState = 'list' | 'create' | 'cart_dashboard' | 'settings';
 
 export default function OwnerDashboard() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const supabase = createClient();
 
   const [view, setView] = useState<ViewState>('list');
   const [carts, setCarts] = useState<any[]>([]);
   const [selectedCartId, setSelectedCartId] = useState<string | null>(null);
+  const [isLoadingCarts, setIsLoadingCarts] = useState(true);
 
   // Form states for creating a new cart
   const [newCartName, setNewCartName] = useState("");
@@ -22,10 +25,20 @@ export default function OwnerDashboard() {
   // States for Cart Settings
   const [cartName, setCartName] = useState("");
   const [description, setDescription] = useState("");
-  const [location, setLocation] = useState("Sector 11, Uttara");
+  const [lat, setLat] = useState<number | "">("");
+  const [lng, setLng] = useState<number | "">("");
   const [foodpandaLink, setFoodpandaLink] = useState("");
   const [facebookLink, setFacebookLink] = useState("");
   const [instagramLink, setInstagramLink] = useState("");
+  const [operatingHours, setOperatingHours] = useState({
+    monday: "",
+    tuesday: "",
+    wednesday: "",
+    thursday: "",
+    friday: "",
+    saturday: "",
+    sunday: ""
+  });
 
   // States for Cart Dashboard (Operations)
   const [isOpen, setIsOpen] = useState(false);
@@ -37,49 +50,69 @@ export default function OwnerDashboard() {
     }
   }, [user, loading, router]);
 
-  // Load carts from local storage
-  useEffect(() => {
-    const storedCarts = localStorage.getItem("cartkoi_carts");
-    if (storedCarts) {
-      setCarts(JSON.parse(storedCarts));
+  // Load carts from Supabase
+  const fetchCarts = async () => {
+    if (!user) return;
+    setIsLoadingCarts(true);
+    const { data, error } = await supabase
+      .from("carts")
+      .select("*")
+      .eq("owner_id", user.id);
+    
+    if (error) {
+      console.error("Error fetching carts:", error);
+    } else {
+      setCarts(data || []);
     }
-  }, []);
-
-  // Save carts to local storage whenever they change
-  const saveCarts = (updatedCarts: any[]) => {
-    setCarts(updatedCarts);
-    localStorage.setItem("cartkoi_carts", JSON.stringify(updatedCarts));
+    setIsLoadingCarts(false);
   };
 
-  const handleCreateCart = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user) {
+      fetchCarts();
+    }
+  }, [user]);
+
+  const handleCreateCart = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newCartName.trim()) return;
+    if (!newCartName.trim() || !user) return;
 
-    const newCart = {
-      id: Date.now().toString(),
-      name: newCartName,
-      description: "My new food cart",
-      location: "Sector 11, Uttara",
-      foodpandaLink: "",
-      facebookLink: "",
-      instagramLink: "",
-      isOpen: false,
-      menuItems: [
-        { id: 1, name: "Classic Burger", price: 150, isAvailable: true },
-        { id: 2, name: "Spicy Fries", price: 80, isAvailable: true },
-      ]
-    };
+    const { data, error } = await supabase
+      .from("carts")
+      .insert({
+        owner_id: user.id,
+        name: newCartName,
+        description: "My new food cart",
+        is_open: false,
+        lat: 23.8759,
+        lng: 90.3980,
+      })
+      .select()
+      .single();
 
-    saveCarts([...carts, newCart]);
-    setNewCartName("");
-    setView('list');
+    if (error) {
+      console.error("Error creating cart:", error);
+      alert("Failed to create cart");
+    } else if (data) {
+      setCarts([...carts, data]);
+      setNewCartName("");
+      setView('list');
+    }
   };
 
-  const handleSelectCartDashboard = (cart: any) => {
+  const handleSelectCartDashboard = async (cart: any) => {
     setSelectedCartId(cart.id);
     setCartName(cart.name); // Need name for the header
-    setIsOpen(cart.isOpen || false);
-    setMenuItems(cart.menuItems || []);
+    setIsOpen(cart.is_open || false);
+    
+    // Fetch menu items
+    const { data } = await supabase
+      .from("menu_items")
+      .select("*")
+      .eq("cart_id", cart.id)
+      .order("created_at", { ascending: false });
+      
+    setMenuItems(data || []);
     setView('cart_dashboard');
   };
 
@@ -88,71 +121,88 @@ export default function OwnerDashboard() {
     setSelectedCartId(cart.id);
     setCartName(cart.name);
     setDescription(cart.description || "");
-    setLocation(cart.location || "Sector 11, Uttara");
+    setLat(cart.lat || "");
+    setLng(cart.lng || "");
     setFoodpandaLink(cart.foodpandaLink || "");
-    setFacebookLink(cart.facebookLink || "");
-    setInstagramLink(cart.instagramLink || "");
+    const socialLinks = cart.social_links || {};
+    setFacebookLink(socialLinks.facebook || "");
+    setInstagramLink(socialLinks.instagram || "");
+    setOperatingHours(cart.operating_hours || {
+      monday: "", tuesday: "", wednesday: "", thursday: "", friday: "", saturday: "", sunday: ""
+    });
     setView('settings');
   };
 
-  const handleSaveSettings = (e: React.FormEvent) => {
+  const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
-    const updatedCarts = carts.map(c => 
-      c.id === selectedCartId ? { 
-        ...c, 
-        name: cartName, 
-        description, 
-        location,
-        foodpandaLink,
-        facebookLink,
-        instagramLink
-      } : c
-    );
-    saveCarts(updatedCarts);
-    alert("Cart settings saved! (Mocked via localStorage)");
-    setView('list');
+    if (!selectedCartId) return;
+
+    const { error } = await supabase
+      .from("carts")
+      .update({
+        name: cartName,
+        description,
+        lat: lat === "" ? null : Number(lat),
+        lng: lng === "" ? null : Number(lng),
+        foodpanda_link: foodpandaLink,
+        social_links: { facebook: facebookLink, instagram: instagramLink },
+        operating_hours: operatingHours
+      })
+      .eq("id", selectedCartId);
+
+    if (error) {
+      console.error("Error updating settings:", error);
+      alert("Failed to update settings");
+    } else {
+      alert("Cart settings saved successfully!");
+      fetchCarts();
+      setView('list');
+    }
   };
 
-  // Keep toggle state in sync with the carts array when saved
-  const handleToggleOpen = () => {
+  const handleToggleOpen = async () => {
+    if (!selectedCartId) return;
     const newStatus = !isOpen;
-    setIsOpen(newStatus);
-    const updatedCarts = carts.map(c => 
-      c.id === selectedCartId ? { ...c, isOpen: newStatus } : c
-    );
-    saveCarts(updatedCarts);
+    setIsOpen(newStatus); // optimistic update
+
+    const { error } = await supabase
+      .from("carts")
+      .update({ is_open: newStatus })
+      .eq("id", selectedCartId);
+      
+    if (error) {
+      setIsOpen(!newStatus); // revert
+      alert("Failed to update status");
+    } else {
+      fetchCarts(); // background refresh
+    }
   };
 
-  const toggleMenuItem = (id: number) => {
-    const updatedItems = menuItems.map(item => 
-      item.id === id ? { ...item, isAvailable: !item.isAvailable } : item
-    );
-    setMenuItems(updatedItems);
+  const toggleMenuItem = async (id: string, currentStatus: boolean) => {
+    // Optimistic update
+    setMenuItems(menuItems.map(item => 
+      item.id === id ? { ...item, is_available: !currentStatus } : item
+    ));
     
-    // Auto-save menu changes
-    const updatedCarts = carts.map(c => 
-      c.id === selectedCartId ? { ...c, menuItems: updatedItems } : c
-    );
-    saveCarts(updatedCarts);
+    const { error } = await supabase
+      .from("menu_items")
+      .update({ is_available: !currentStatus })
+      .eq("id", id);
+      
+    if (error) {
+      // Revert if error
+      setMenuItems(menuItems.map(item => 
+        item.id === id ? { ...item, is_available: currentStatus } : item
+      ));
+      alert("Failed to update menu item status.");
+    }
   };
 
   const addNewItem = () => {
-    const newItem = {
-      id: Date.now(),
-      name: "New Menu Item",
-      price: 100,
-      isAvailable: true
-    };
-    const updatedItems = [...menuItems, newItem];
-    setMenuItems(updatedItems);
-    
-    const updatedCarts = carts.map(c => 
-      c.id === selectedCartId ? { ...c, menuItems: updatedItems } : c
-    );
-    saveCarts(updatedCarts);
+    alert("Full Menu Management will be implemented in Phase 6!");
   };
 
-  if (loading || !user) {
+  if (loading || !user || isLoadingCarts) {
     return (
       <main className="flex min-h-screen items-center justify-center">
         <Loader2 className="animate-spin text-primary w-8 h-8" />
@@ -216,8 +266,8 @@ export default function OwnerDashboard() {
                         <div className="p-3 bg-primary/10 rounded-xl text-primary">
                           <Store size={24} />
                         </div>
-                        <div className={`px-3 py-1 rounded-full text-xs font-bold ${cart.isOpen ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
-                          {cart.isOpen ? 'Open' : 'Closed'}
+                        <div className={`px-3 py-1 rounded-full text-xs font-bold ${cart.is_open ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                          {cart.is_open ? 'Open' : 'Closed'}
                         </div>
                       </div>
                       <h3 className="text-xl font-bold text-foreground mb-1">{cart.name}</h3>
@@ -336,15 +386,45 @@ export default function OwnerDashboard() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground ml-1 flex items-center gap-1"><MapPin size={14} className="text-primary"/> Location</label>
-                  <input
-                    type="text"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-white/50 border border-white/60 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm"
-                    placeholder="E.g. Sector 11, Uttara"
-                  />
-                  <p className="text-[10px] text-muted-foreground ml-1">Location will eventually be powered by GPS in the final version.</p>
+                  <label className="text-sm font-medium text-foreground ml-1 flex items-center gap-1"><MapPin size={14} className="text-primary"/> Coordinates (Lat/Lng)</label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <input
+                      type="number"
+                      step="any"
+                      value={lat}
+                      onChange={(e) => setLat(e.target.value === "" ? "" : Number(e.target.value))}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white/50 border border-white/60 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm"
+                      placeholder="Latitude (e.g. 23.8759)"
+                    />
+                    <input
+                      type="number"
+                      step="any"
+                      value={lng}
+                      onChange={(e) => setLng(e.target.value === "" ? "" : Number(e.target.value))}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white/50 border border-white/60 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm"
+                      placeholder="Longitude (e.g. 90.3980)"
+                    />
+                  </div>
+                </div>
+
+                <hr className="border-white/40 my-6" />
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-foreground flex items-center gap-2"><Clock size={18} className="text-primary"/> Operating Hours</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => (
+                      <div key={day} className="space-y-1.5">
+                        <label className="text-sm font-medium text-foreground ml-1 capitalize">{day}</label>
+                        <input
+                          type="text"
+                          value={(operatingHours as any)[day]}
+                          onChange={(e) => setOperatingHours({ ...operatingHours, [day]: e.target.value })}
+                          className="w-full px-4 py-2.5 rounded-xl bg-white/50 border border-white/60 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm"
+                          placeholder="e.g. 10am - 8pm, or Closed"
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <hr className="border-white/40 my-6" />
@@ -468,14 +548,14 @@ export default function OwnerDashboard() {
                     </div>
                     
                     <button
-                      onClick={() => toggleMenuItem(item.id)}
+                      onClick={() => toggleMenuItem(item.id, item.is_available)}
                       className={`px-4 py-2 text-sm font-bold rounded-full flex items-center gap-1.5 transition-colors ${
-                        item.isAvailable 
+                        item.is_available 
                           ? 'bg-green-100 text-green-700 hover:bg-green-200' 
                           : 'bg-red-100 text-red-700 hover:bg-red-200'
                       }`}
                     >
-                      {item.isAvailable ? <><Check size={16}/> Available</> : <><X size={16}/> Sold Out</>}
+                      {item.is_available ? <><Check size={16}/> Available</> : <><X size={16}/> Sold Out</>}
                     </button>
                   </div>
                 ))}
