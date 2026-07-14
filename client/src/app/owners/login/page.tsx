@@ -108,11 +108,19 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-8 text-center text-sm text-muted-foreground">
-            Don't have an owner account?{" "}
-            <Link href="/owners/signup" className="font-semibold text-primary hover:underline">
-              Sign up
-            </Link>
+          <div className="mt-8 text-center text-sm text-muted-foreground flex flex-col gap-2">
+            <p>
+              Don't have an owner account?{" "}
+              <Link href="/owners/signup" className="font-semibold text-primary hover:underline">
+                Sign up
+              </Link>
+            </p>
+            <p>
+              Are you an employee?{" "}
+              <Link href="/employees/signup" className="font-semibold text-blue-500 hover:underline">
+                Join a Cart
+              </Link>
+            </p>
           </div>
         </div>
       </motion.div>

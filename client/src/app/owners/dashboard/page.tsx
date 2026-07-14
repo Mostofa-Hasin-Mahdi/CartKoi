@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Settings, Link as LinkIcon, Globe, Camera, Clock, Edit2, Trash2, Save } from "lucide-react";
+import { Plus, Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Settings, Link as LinkIcon, Globe, Camera, Clock, Edit2, Trash2, Save, Users, UserX } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { createClient } from "@/utils/supabase/client";
 
-type ViewState = 'list' | 'create' | 'cart_dashboard' | 'settings';
+type ViewState = 'list' | 'create' | 'cart_dashboard' | 'settings' | 'employees';
 
 export default function OwnerDashboard() {
   const { user, loading } = useAuth();
@@ -30,6 +30,7 @@ export default function OwnerDashboard() {
   const [foodpandaLink, setFoodpandaLink] = useState("");
   const [facebookLink, setFacebookLink] = useState("");
   const [instagramLink, setInstagramLink] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
   const [operatingHours, setOperatingHours] = useState({
     monday: "",
     tuesday: "",
@@ -43,6 +44,7 @@ export default function OwnerDashboard() {
   // States for Cart Dashboard (Operations)
   const [isOpen, setIsOpen] = useState(false);
   const [menuItems, setMenuItems] = useState<any[]>([]);
+  const [cartEmployees, setCartEmployees] = useState<any[]>([]);
 
   // Menu Management States
   const [isAddingItem, setIsAddingItem] = useState(false);
@@ -136,6 +138,7 @@ export default function OwnerDashboard() {
     const socialLinks = cart.social_links || {};
     setFacebookLink(socialLinks.facebook || "");
     setInstagramLink(socialLinks.instagram || "");
+    setInviteCode(cart.invite_code || "");
     setOperatingHours(cart.operating_hours || {
       monday: "", tuesday: "", wednesday: "", thursday: "", friday: "", saturday: "", sunday: ""
     });
@@ -166,6 +169,61 @@ export default function OwnerDashboard() {
       alert("Cart settings saved successfully!");
       fetchCarts();
       setView('list');
+    }
+  };
+
+  const generateInviteCode = async () => {
+    if (!selectedCartId) return;
+    
+    // Generate a random 6-character alphanumeric code
+    const newCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    
+    const { error } = await supabase
+      .from("carts")
+      .update({ invite_code: newCode })
+      .eq("id", selectedCartId);
+      
+    if (error) {
+      alert("Failed to generate invite code. It might already be in use.");
+    } else {
+      setInviteCode(newCode);
+      fetchCarts();
+    }
+  };
+
+  const handleSelectCartEmployees = async (e: React.MouseEvent, cart: any) => {
+    e.stopPropagation();
+    setSelectedCartId(cart.id);
+    setCartName(cart.name);
+    setView('employees');
+    
+    // Fetch employees for this cart
+    const { data, error } = await supabase
+      .from("cart_employees")
+      .select("employee_id, profiles(full_name, id)")
+      .eq("cart_id", cart.id);
+      
+    if (error) {
+      console.error("Error fetching employees", error);
+    } else {
+      // Map to an easier format and filter out nulls
+      const emps = data.map((row: any) => row.profiles).filter(Boolean);
+      setCartEmployees(emps || []);
+    }
+  };
+
+  const removeEmployee = async (employeeId: string) => {
+    if (!confirm("Are you sure you want to remove this employee?")) return;
+    
+    const { error } = await supabase
+      .from("cart_employees")
+      .delete()
+      .match({ cart_id: selectedCartId, employee_id: employeeId });
+      
+    if (error) {
+      alert("Failed to remove employee.");
+    } else {
+      setCartEmployees(cartEmployees.filter(emp => emp.id !== employeeId));
     }
   };
 
@@ -345,6 +403,12 @@ export default function OwnerDashboard() {
                       <p className="text-sm text-muted-foreground mb-6 line-clamp-2">{cart.description}</p>
                       
                       <div className="mt-auto flex gap-2">
+                        <button
+                          onClick={(e) => handleSelectCartEmployees(e, cart)}
+                          className="flex-1 py-2 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-100 font-semibold text-sm transition-all flex items-center justify-center gap-1.5 z-10"
+                        >
+                          <Users size={14} /> Employees
+                        </button>
                         <button
                           onClick={(e) => handleSelectCartSettings(e, cart)}
                           className="flex-1 py-2 rounded-xl bg-white/50 hover:bg-white/80 border border-white/60 font-semibold text-sm transition-all flex items-center justify-center gap-1.5 z-10"
@@ -538,13 +602,94 @@ export default function OwnerDashboard() {
                   </div>
                 </div>
 
+                <hr className="border-white/40 my-6" />
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-foreground">Employee Access</h3>
+                  <p className="text-sm text-muted-foreground">Share this code with your employees so they can join this cart.</p>
+                  
+                  <div className="flex items-center gap-3 bg-white/50 p-4 rounded-xl border border-white/60">
+                    <div className="flex-1">
+                      <p className="text-xs font-bold uppercase text-slate-500 mb-1">Invite Code</p>
+                      {inviteCode ? (
+                        <p className="text-2xl font-black text-slate-800 tracking-widest">{inviteCode}</p>
+                      ) : (
+                        <p className="text-sm text-slate-500 italic">No code generated yet</p>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={generateInviteCode}
+                      className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm font-bold hover:bg-slate-300 transition-colors"
+                    >
+                      {inviteCode ? "Regenerate" : "Generate Code"}
+                    </button>
+                  </div>
+                </div>
+
                 <button
                   type="submit"
-                  className="w-full py-2.5 mt-4 rounded-xl bg-primary text-primary-foreground font-semibold shadow-md hover:shadow-lg transition-all text-sm"
+                  className="w-full py-2.5 mt-6 rounded-xl bg-primary text-primary-foreground font-semibold shadow-md hover:shadow-lg transition-all text-sm"
                 >
                   Save Settings
                 </button>
               </form>
+            </div>
+          </motion.div>
+        )}
+
+        {view === 'employees' && (
+          <motion.div
+            key="employees"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3 }}
+            className="w-full max-w-2xl mx-auto space-y-6"
+          >
+            <button
+              onClick={() => setView('list')}
+              className="flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground mb-2 transition-colors"
+            >
+              <ArrowLeft size={16} /> Back to All Carts
+            </button>
+
+            <div className="mb-4">
+              <h1 className="text-3xl font-bold text-foreground tracking-tight mb-2">{cartName} Employees</h1>
+              <p className="text-muted-foreground">Manage the staff assigned to this cart.</p>
+            </div>
+
+            <div className="glass-panel p-6 md:p-8 rounded-[2rem] border border-white/60 shadow-lg min-h-[300px]">
+              <div className="space-y-3">
+                {cartEmployees.length === 0 ? (
+                  <div className="text-center py-10 text-muted-foreground">
+                    <Users size={40} className="mx-auto text-slate-300 mb-3" />
+                    <p>No employees are assigned to this cart yet.</p>
+                    <p className="text-sm mt-2">Go to Cart Settings to generate an Invite Code.</p>
+                  </div>
+                ) : (
+                  cartEmployees.map(emp => (
+                    <div key={emp.id} className="flex items-center justify-between bg-white/60 p-4 rounded-xl shadow-sm border border-white">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">
+                          {emp?.full_name?.charAt(0).toUpperCase() || "U"}
+                        </div>
+                        <div>
+                          <p className="font-bold text-foreground">{emp?.full_name || "Unknown User"}</p>
+                          <p className="text-xs text-muted-foreground">ID: {emp?.id?.substring(0, 8)}...</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => removeEmployee(emp?.id)}
+                        className="p-2 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors flex items-center gap-2 text-sm font-semibold"
+                        title="Remove Employee"
+                      >
+                        <UserX size={16} /> Remove
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </motion.div>
         )}
