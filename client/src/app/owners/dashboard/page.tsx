@@ -8,6 +8,8 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/useAuth";
 import { createClient } from "@/utils/supabase/client";
+import { OperatingHours } from "@/utils/hours";
+import { compressImage } from "@/utils/imageCompression";
 import NavBar from "@/components/NavBar";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -345,13 +347,16 @@ export default function OwnerDashboard() {
   };
 
   const uploadImage = async (file: File) => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+    // Compress the image before uploading
+    const compressedFile = await compressImage(file);
+    
+    const fileExt = compressedFile.name.split('.').pop();
+    const fileName = `${Math.random()}.${fileExt}`;
     const filePath = `${user?.id}/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from('cart_images')
-      .upload(filePath, file);
+      .upload(filePath, compressedFile);
 
     if (uploadError) {
       console.error("Upload error:", uploadError);
