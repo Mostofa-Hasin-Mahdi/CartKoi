@@ -4,9 +4,9 @@
   
   **The ultimate platform connecting local food carts with hungry customers.**
   
-  ![UI Design](https://img.shields.io/badge/UI-Glassmorphism-blue)
-  ![Stack](https://img.shields.io/badge/Stack-Next.js%20|%20Supabase-black)
-  ![License](https://img.shields.io/badge/License-MIT-green)
+  [![UI Design](https://img.shields.io/badge/UI-Glassmorphism-blue?style=for-the-badge)](https://tailwindcss.com/)
+  [![Stack](https://img.shields.io/badge/Stack-Next.js%20|%20Supabase-black?style=for-the-badge)](https://nextjs.org/)
+  [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
   
 </div>
 
@@ -17,9 +17,9 @@
 Food carts are a beloved part of local communities, but they suffer from one major problem: **discoverability**. Because they move around, customers never know exactly where they are or if they are open.
 
 **CartKoi** solves this by providing a premium, centralized platform where:
-- **Food Cart Owners** can instantly update their live location, status, and menu.
-- **Employees** can securely log in to help manage stock and location without needing owner credentials.
-- **Customers** can explore a live, interactive map to discover nearby food carts, view menus, see operating hours, and calculate exactly how far away they are.
+- 🧑‍💼 **Food Cart Owners** can instantly update their live location, status, and rich menu descriptions.
+- 🧑‍🍳 **Employees** can securely log in to help manage stock and location without needing owner credentials.
+- 🍔 **Customers** can explore a live, interactive map to discover nearby food carts, view menus, see operating hours, and calculate exactly how far away they are.
 
 ---
 
@@ -30,11 +30,11 @@ Food carts are a beloved part of local communities, but they suffer from one maj
 - **Real-Time Distance Calculation:** CartKoi uses the Haversine formula to compute exactly how far away a food cart is based on your device's GPS.
 - **Advanced Filtering & Search:** Client-side, ultra-fast search functionality to instantly filter carts by name or "Open Now" status.
 - **Reviews & Ratings:** Leave reviews and see community ratings before you visit.
-- **Native Sharing:** One-click Web Share API integration to easily send cart locations to friends via WhatsApp, Messenger, or Twitter.
+- **Native Sharing & Socials:** One-click Web Share API integration to easily send cart locations. Connect directly with the carts via their dynamic Foodpanda, Facebook, and Instagram links.
 
 ### 🏢 For Food Cart Owners (Management)
 - **Role-Based Access Control (RBAC):** Secure Supabase Auth ensures owners have full control over their business.
-- **Dynamic Dashboard:** Update menus, toggle availability, and set daily operating hours effortlessly.
+- **Dynamic Dashboard:** Update menus, add food descriptions, toggle availability, and set daily operating hours effortlessly.
 - **Client-Side Image Compression:** Zero-dependency, hardware-accelerated image compression (via HTML5 Canvas) ensures that when owners upload 5MB camera photos, they are squashed to ~100KB before uploading, saving massive bandwidth and making the app lightning fast.
 
 ### 🧑‍🍳 For Employees (Operations)
@@ -48,14 +48,27 @@ Food carts are a beloved part of local communities, but they suffer from one maj
 CartKoi is built with a premium, state-of-the-art **Glassmorphism** aesthetic. We bypassed heavy UI frameworks (like Material UI or Chakra) in favor of raw **Tailwind CSS** to create a custom, lightweight, and visually stunning design system.
 
 - **Dynamic Animations:** Powered by `framer-motion` for smooth page transitions, floating map headers, and beautiful micro-interactions.
-- **Perceived Performance:** Implementation of custom Skeleton Loading screens (similar to YouTube/Facebook) rather than generic spinners, making the app feel instantaneously responsive.
-- **Responsive:** Fluidly scales from the smallest iPhones to large desktop monitors.
+- **Perceived Performance:** Implementation of custom Skeleton Loading screens rather than generic spinners, making the app feel instantaneously responsive.
+- **Mobile First & Responsive:** Fluidly scales from the smallest iPhones to large desktop monitors.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** Next.js 14 (App Router), React, Tailwind CSS, Framer Motion
+<div align="center">
+  <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js" />
+  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white" alt="Framer Motion" />
+  <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
+  <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Leaflet-199900?style=for-the-badge&logo=leaflet&logoColor=white" alt="Leaflet" />
+</div>
+
+<br/>
+
+- **Frontend:** Next.js 14 (App Router), React, TypeScript, Tailwind CSS, Framer Motion
 - **Backend/Database:** Supabase (PostgreSQL)
 - **Authentication:** Supabase Auth (Magic Links & Email/Password)
 - **Storage:** Supabase Storage with Row Level Security (RLS)
@@ -88,3 +101,9 @@ CartKoi is built with a premium, state-of-the-art **Glassmorphism** aesthetic. W
    npm run dev
    ```
    Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
