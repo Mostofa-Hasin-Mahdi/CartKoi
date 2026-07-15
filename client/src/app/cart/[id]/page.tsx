@@ -143,7 +143,7 @@ export default function CartDetailPage() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col bg-slate-50 pb-24 relative">
+    <main className="flex min-h-screen flex-col bg-slate-50 pb-24 relative overflow-x-hidden">
       {/* Header section with optional background image placeholder */}
       <div className="w-full h-48 md:h-64 bg-slate-900 relative">
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent z-10" />
@@ -172,7 +172,7 @@ export default function CartDetailPage() {
                 <span className="font-bold text-slate-700">{averageRating}</span>
                 <span className="text-sm text-slate-400">({reviews.length} reviews)</span>
               </div>
-              <p className="text-slate-500 leading-relaxed max-w-2xl">{cart.description || "No description provided."}</p>
+              <p className="text-slate-500 leading-relaxed max-w-2xl break-words whitespace-pre-wrap">{cart.description || "No description provided."}</p>
             </div>
             
             {/* Action Buttons */}
@@ -223,19 +223,17 @@ export default function CartDetailPage() {
           
           <div className="space-y-3">
             {menuItems.length > 0 ? menuItems.map(item => (
-              <div key={item.id} className={`flex items-center justify-between p-4 rounded-2xl border ${item.is_available ? 'bg-white border-slate-200 shadow-sm' : 'bg-slate-50 border-slate-100 opacity-60'}`}>
-                <div>
-                  <h3 className={`font-bold text-lg ${item.is_available ? 'text-slate-800' : 'text-slate-500 line-through decoration-slate-400'}`}>
-                    {item.name}
-                  </h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="font-black text-primary">৳{item.price}</span>
-                    {item.is_available ? (
-                      <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full flex items-center gap-1"><CheckCircle2 size={12}/> In Stock</span>
-                    ) : (
-                      <span className="text-xs font-semibold text-red-500 bg-red-50 px-2 py-0.5 rounded-full flex items-center gap-1"><XCircle size={12}/> Sold Out</span>
-                    )}
-                  </div>
+              <div key={item.id} className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl border gap-2 sm:gap-4 ${item.is_available ? 'bg-white border-slate-200 shadow-sm' : 'bg-slate-50 border-slate-100 opacity-60'}`}>
+                <h3 className={`font-bold text-lg ${item.is_available ? 'text-slate-800' : 'text-slate-500 line-through decoration-slate-400'}`}>
+                  {item.name}
+                </h3>
+                <div className="flex items-center gap-2 mt-1 sm:mt-0">
+                  <span className="font-black text-primary text-lg">৳{item.price}</span>
+                  {item.is_available ? (
+                    <span className="text-xs font-semibold text-green-600 bg-green-50 px-2.5 py-1 rounded-full flex items-center gap-1"><CheckCircle2 size={14}/> In Stock</span>
+                  ) : (
+                    <span className="text-xs font-semibold text-red-500 bg-red-50 px-2.5 py-1 rounded-full flex items-center gap-1"><XCircle size={14}/> Sold Out</span>
+                  )}
                 </div>
               </div>
             )) : (
@@ -263,7 +261,7 @@ export default function CartDetailPage() {
                       </div>
                     </div>
                     {review.comment && (
-                      <p className="text-slate-600 text-sm">{review.comment}</p>
+                      <p className="text-slate-600 text-sm break-words whitespace-pre-wrap">{review.comment}</p>
                     )}
                     <p className="text-xs text-slate-400 mt-3">{new Date(review.created_at).toLocaleDateString()}</p>
                   </div>

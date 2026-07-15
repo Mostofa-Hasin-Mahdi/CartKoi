@@ -234,20 +234,20 @@ export default function EmployeeDashboard() {
             <div className="bg-white/50 border border-white/60 p-6 rounded-2xl shadow-sm mb-8">
               <h3 className="font-bold text-lg mb-2">Join a Cart</h3>
               <p className="text-sm text-muted-foreground mb-4">Enter the 6-character Invite Code provided by the owner to manage their cart.</p>
-              <form onSubmit={handleJoinCart} className="flex gap-3">
+              <form onSubmit={handleJoinCart} className="flex flex-col sm:flex-row gap-3">
                 <input
                   type="text"
                   required
                   maxLength={6}
                   value={inviteCode}
                   onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 uppercase tracking-widest font-bold text-slate-700"
+                  className="flex-1 w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 uppercase tracking-widest font-bold text-slate-700"
                   placeholder="e.g. A1B2C3"
                 />
                 <button
                   type="submit"
                   disabled={joining}
-                  className="px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold shadow-sm hover:bg-blue-700 transition disabled:opacity-50 flex items-center gap-2"
+                  className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold shadow-sm hover:bg-blue-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {joining ? <Loader2 size={16} className="animate-spin" /> : null}
                   Join
@@ -343,7 +343,7 @@ export default function EmployeeDashboard() {
                 <button
                   onClick={handleBulkSoldOut}
                   disabled={isUpdatingBulk || menuItems.every(i => !i.is_available) || menuItems.length === 0}
-                  className="px-4 py-2 bg-red-100 text-red-700 font-bold text-sm rounded-lg hover:bg-red-200 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="w-full md:w-auto px-4 py-2 bg-red-100 text-red-700 font-bold text-sm rounded-lg hover:bg-red-200 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isUpdatingBulk ? <Loader2 size={16} className="animate-spin" /> : <X size={16} />} 
                   Mark All Sold Out
@@ -352,7 +352,7 @@ export default function EmployeeDashboard() {
 
               <div className="flex-1 space-y-3 overflow-y-auto pr-1">
                 {menuItems.map(item => (
-                  <div key={item.id} className="flex items-center justify-between bg-white/40 p-4 rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/60">
+                  <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-white/40 p-4 rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/60 gap-3">
                     <div>
                       <p className="font-semibold text-base text-foreground">{item.name}</p>
                       <p className="text-sm text-muted-foreground">৳ {item.price}</p>
@@ -360,7 +360,7 @@ export default function EmployeeDashboard() {
                     
                     <button
                       onClick={() => toggleMenuItem(item.id, item.is_available)}
-                      className={`px-4 py-2 text-sm font-bold rounded-full flex items-center gap-1.5 transition-colors ${
+                      className={`px-4 py-2 text-sm font-bold rounded-full flex items-center justify-center gap-1.5 transition-colors w-full sm:w-auto ${
                         item.is_available 
                           ? 'bg-green-100 text-green-700 hover:bg-green-200' 
                           : 'bg-red-100 text-red-700 hover:bg-red-200'

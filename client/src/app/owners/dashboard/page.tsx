@@ -820,18 +820,18 @@ export default function OwnerDashboard() {
                   <h2 className="text-xl font-bold text-foreground">Live Menu Stock</h2>
                   <p className="text-xs text-muted-foreground mt-1">Toggle items as they sell out so customers know what's available.</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                   <button
                     onClick={handleBulkSoldOut}
                     disabled={isUpdatingBulk || menuItems.every(i => !i.is_available) || menuItems.length === 0}
-                    className="flex items-center gap-1 text-xs font-semibold bg-red-100 text-red-700 px-3 py-1.5 rounded-full hover:bg-red-200 transition-colors disabled:opacity-50"
+                    className="w-full sm:w-auto flex items-center justify-center gap-1 text-xs font-semibold bg-red-100 text-red-700 px-3 py-1.5 rounded-full hover:bg-red-200 transition-colors disabled:opacity-50"
                   >
                     {isUpdatingBulk ? <Loader2 size={14} className="animate-spin" /> : <X size={14} />} Mark All Sold Out
                   </button>
                   {!isAddingItem && (
                     <button 
                       onClick={() => setIsAddingItem(true)}
-                      className="flex items-center gap-1 text-xs font-semibold bg-tertiary/20 text-tertiary-foreground px-3 py-1.5 rounded-full hover:bg-tertiary/30 transition-colors"
+                      className="w-full sm:w-auto flex items-center justify-center gap-1 text-xs font-semibold bg-tertiary/20 text-tertiary-foreground px-3 py-1.5 rounded-full hover:bg-tertiary/30 transition-colors"
                     >
                       <Plus size={14} /> Add Item
                     </button>
@@ -864,7 +864,7 @@ export default function OwnerDashboard() {
 
               <div className="flex-1 space-y-3 overflow-y-auto pr-1">
                 {menuItems.map(item => (
-                  <div key={item.id} className="flex items-center justify-between bg-white/40 p-4 rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/60 group">
+                  <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-white/40 p-4 rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/60 group gap-3">
                     {editingItemId === item.id ? (
                       <div className="flex-1 flex flex-col md:flex-row gap-3 mr-4">
                         <input
@@ -892,7 +892,7 @@ export default function OwnerDashboard() {
                     )}
                     
                     {editingItemId !== item.id && (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
                         {/* Edit & Delete Actions (Hidden on mobile unless hovered, or always visible) */}
                         <div className="flex opacity-0 group-hover:opacity-100 transition-opacity">
                           <button onClick={() => startEditing(item)} className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"><Edit2 size={16}/></button>
@@ -901,7 +901,7 @@ export default function OwnerDashboard() {
                         
                         <button
                           onClick={() => toggleMenuItem(item.id, item.is_available)}
-                          className={`px-4 py-2 text-sm font-bold rounded-full flex items-center gap-1.5 transition-colors ${
+                          className={`px-4 py-2 text-sm font-bold rounded-full flex items-center justify-center gap-1.5 transition-colors flex-1 sm:flex-none ${
                             item.is_available 
                               ? 'bg-green-100 text-green-700 hover:bg-green-200' 
                               : 'bg-red-100 text-red-700 hover:bg-red-200'

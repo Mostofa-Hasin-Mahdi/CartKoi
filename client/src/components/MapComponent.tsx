@@ -70,13 +70,13 @@ export default function MapComponent({ carts }: { carts: any[] }) {
       const position = getCartLocation(cart, idx);
       
       const popupContent = `
-        <div class="p-1 min-w-[150px]">
-          <h3 class="font-bold text-base m-0 p-0 leading-tight text-slate-900">${cart.name}</h3>
+        <div class="p-1 min-w-[120px] max-w-[200px] sm:min-w-[150px] sm:max-w-xs">
+          <h3 class="font-bold text-base m-0 p-0 leading-tight text-slate-900 break-words">${cart.name}</h3>
           <p class="text-xs text-gray-500 mt-1 mb-2">CartKoi Partner</p>
           <div class="px-2 py-0.5 rounded text-[10px] inline-block font-bold mb-2 ${cart.is_open ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">
             ${cart.is_open ? 'Open Now' : 'Closed'}
           </div>
-          ${cart.operating_hours ? `<p class="text-[10px] text-gray-500 mb-2 font-medium">${formatHoursForDisplay(cart.operating_hours)}</p>` : ''}
+          ${cart.operating_hours ? `<p class="text-[10px] text-gray-500 mb-2 font-medium break-words">${formatHoursForDisplay(cart.operating_hours)}</p>` : ''}
           <a href="/cart/${cart.id}" class="block text-center w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white text-xs py-2 rounded font-bold transition-colors">
             View Menu
           </a>
