@@ -8,6 +8,8 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/useAuth";
 import { createClient } from "@/utils/supabase/client";
+import NavBar from "@/components/NavBar";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 const LocationUpdater = dynamic(() => import("@/components/LocationUpdater"), { ssr: false });
 
@@ -453,8 +455,33 @@ export default function OwnerDashboard() {
 
   if (loading || !user || isLoadingCarts) {
     return (
-      <main className="flex min-h-screen items-center justify-center">
-        <Loader2 className="animate-spin text-primary w-8 h-8" />
+      <main className="flex min-h-screen flex-col items-center p-4 pt-24 pb-32 relative overflow-hidden bg-slate-50">
+        <div className="w-full max-w-4xl space-y-8">
+          <div className="text-center md:text-left mb-8">
+            <Skeleton className="h-10 w-64 mb-2 mx-auto md:mx-0" />
+            <Skeleton className="h-5 w-80 mx-auto md:mx-0" />
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="bg-white p-6 rounded-[1.5rem] border border-slate-100 shadow-md flex flex-col h-full">
+                <div className="flex justify-between items-start mb-4">
+                  <Skeleton className="w-12 h-12 rounded-xl" />
+                  <Skeleton className="w-16 h-6 rounded-full" />
+                </div>
+                <Skeleton className="h-6 w-3/4 mb-2" />
+                <Skeleton className="h-4 w-full mb-1" />
+                <Skeleton className="h-4 w-5/6 mb-4" />
+                
+                <div className="mt-auto grid grid-cols-2 gap-2">
+                  <Skeleton className="h-9 w-full rounded-lg" />
+                  <Skeleton className="h-9 w-full rounded-lg" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <NavBar />
       </main>
     );
   }

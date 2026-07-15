@@ -6,6 +6,7 @@ import { Loader2, Save, User, Phone, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { createClient } from "@/utils/supabase/client";
 import NavBar from "@/components/NavBar";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function ProfilePage() {
   const { user, loading, signOut } = useAuth();
@@ -71,8 +72,33 @@ export default function ProfilePage() {
 
   if (loading || initialLoad) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50">
-        <Loader2 className="animate-spin text-primary w-8 h-8" />
+      <main className="flex min-h-screen flex-col bg-slate-50 pt-24 pb-32 relative overflow-hidden">
+        <NavBar />
+        <div className="max-w-xl w-full mx-auto px-4 z-10">
+          <div className="bg-white/70 backdrop-blur-md border border-white/60 p-8 rounded-3xl shadow-xl">
+            <Skeleton className="h-9 w-48 mb-2" />
+            <Skeleton className="h-5 w-72 mb-8" />
+            
+            <div className="space-y-6">
+              <div>
+                <Skeleton className="h-5 w-24 mb-2" />
+                <Skeleton className="h-12 w-full rounded-xl" />
+              </div>
+              
+              <div>
+                <Skeleton className="h-5 w-28 mb-2" />
+                <Skeleton className="h-12 w-full rounded-xl" />
+                <Skeleton className="h-4 w-64 mt-2" />
+              </div>
+              
+              <Skeleton className="h-12 w-full rounded-xl" />
+            </div>
+            
+            <div className="mt-12 pt-6 border-t border-slate-200">
+              <Skeleton className="h-6 w-24" />
+            </div>
+          </div>
+        </div>
       </main>
     );
   }

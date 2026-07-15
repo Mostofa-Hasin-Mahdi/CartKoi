@@ -9,6 +9,8 @@ import { Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Navigation, Phone, 
 const LocationUpdater = dynamic(() => import("@/components/LocationUpdater"), { ssr: false });
 import { useAuth } from "@/hooks/useAuth";
 import { createClient } from "@/utils/supabase/client";
+import NavBar from "@/components/NavBar";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 type ViewState = 'list' | 'cart_dashboard';
 
@@ -221,8 +223,40 @@ export default function EmployeeDashboard() {
 
   if (loading || !user || isLoadingCarts) {
     return (
-      <main className="flex min-h-screen items-center justify-center">
-        <Loader2 className="animate-spin text-primary w-8 h-8" />
+      <main className="flex min-h-screen flex-col items-center p-4 pt-24 pb-32 relative overflow-hidden bg-slate-50">
+        <div className="w-full max-w-4xl space-y-8">
+          <div className="text-center md:text-left mb-8">
+            <Skeleton className="h-10 w-64 mb-2 mx-auto md:mx-0" />
+            <Skeleton className="h-5 w-80 mx-auto md:mx-0" />
+          </div>
+
+          <div className="glass-panel p-6 md:p-8 rounded-[2rem] border border-white/60 shadow-lg">
+            <Skeleton className="h-7 w-48 mb-2" />
+            <Skeleton className="h-4 w-72 mb-6" />
+            <div className="flex flex-col md:flex-row gap-3">
+              <Skeleton className="h-12 w-full flex-1 rounded-xl" />
+              <Skeleton className="h-12 w-full md:w-32 rounded-xl" />
+            </div>
+          </div>
+          
+          <div className="space-y-6">
+            <Skeleton className="h-8 w-48" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="bg-white p-6 rounded-[1.5rem] border border-slate-100 shadow-md flex flex-col h-full">
+                  <Skeleton className="h-10 w-full rounded-lg mb-4" />
+                  <div className="bg-slate-50 rounded-lg p-3 border border-slate-100 space-y-1.5 mb-4">
+                    <Skeleton className="h-3 w-20 mb-2" />
+                    <Skeleton className="h-4 w-32 mb-1" />
+                    <Skeleton className="h-4 w-28" />
+                  </div>
+                  <Skeleton className="h-10 w-full rounded-lg" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <NavBar />
       </main>
     );
   }

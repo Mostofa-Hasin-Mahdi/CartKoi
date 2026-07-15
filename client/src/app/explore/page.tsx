@@ -5,14 +5,17 @@ import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { MapPin, Loader2, Store } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 // Dynamically import the map component to avoid SSR issues with Leaflet
 const MapComponent = dynamic(() => import("@/components/MapComponent"), { 
   ssr: false,
   loading: () => (
-    <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900/50">
-      <Loader2 className="animate-spin text-primary w-8 h-8 mb-4" />
-      <p className="text-white font-medium">Loading Interactive Map...</p>
+    <div className="w-full h-full relative bg-slate-900/50 overflow-hidden">
+      <Skeleton className="absolute top-20 md:top-6 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-md h-16 rounded-2xl bg-white/20" />
+      <Skeleton className="absolute top-1/4 left-1/4 w-12 h-12 rounded-full bg-white/20" />
+      <Skeleton className="absolute top-1/2 right-1/4 w-12 h-12 rounded-full bg-white/20" />
+      <Skeleton className="absolute bottom-1/3 left-1/2 w-12 h-12 rounded-full bg-white/20" />
     </div>
   )
 });

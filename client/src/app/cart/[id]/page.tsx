@@ -8,6 +8,7 @@ import Image from "next/image";
 import { formatHoursForDisplay, OperatingHours } from "@/utils/hours";
 import NavBar from "@/components/NavBar";
 import { calculateDistance } from "@/utils/distance";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function CartDetailPage() {
   const params = useParams();
@@ -103,8 +104,53 @@ export default function CartDetailPage() {
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-950">
-        <Loader2 className="animate-spin text-primary w-10 h-10" />
+      <main className="flex min-h-screen flex-col bg-slate-50 pb-24 relative overflow-x-hidden">
+        <div className="w-full h-48 md:h-64 bg-slate-900 relative">
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent z-10" />
+        </div>
+        <div className="px-4 md:px-8 max-w-4xl mx-auto w-full -mt-16 z-20 relative">
+          <div className="bg-white rounded-3xl p-6 md:p-8 shadow-xl border border-slate-100 mb-6">
+            <div className="flex flex-col md:flex-row justify-between gap-4 items-start mb-4">
+              <div className="w-full">
+                <div className="flex items-center gap-3 mb-2">
+                  <Skeleton className="h-10 w-3/4 md:w-1/2" />
+                  <Skeleton className="h-6 w-20 rounded-full" />
+                </div>
+                <div className="flex items-center gap-2 mb-4">
+                  <Skeleton className="h-5 w-32" />
+                </div>
+                <div className="space-y-2 max-w-2xl">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-5/6" />
+                  <Skeleton className="h-4 w-4/6" />
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-4 border-y border-slate-100 mt-6 mb-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="flex flex-col gap-2">
+                  <Skeleton className="h-3 w-16" />
+                  <Skeleton className="h-5 w-24" />
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <Skeleton className="h-8 w-32 mb-6" />
+          <div className="space-y-3">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl border bg-white border-slate-200 shadow-sm gap-2 sm:gap-4">
+                <div className="flex items-center gap-4 w-full">
+                  <Skeleton className="w-16 h-16 rounded-xl flex-shrink-0" />
+                  <Skeleton className="h-6 w-1/3 min-w-[120px]" />
+                </div>
+                <Skeleton className="h-8 w-24 rounded-full mt-1 sm:mt-0" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <NavBar />
       </main>
     );
   }
