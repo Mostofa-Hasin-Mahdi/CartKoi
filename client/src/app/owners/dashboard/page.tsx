@@ -163,7 +163,7 @@ export default function OwnerDashboard() {
     setDescription(cart.description || "");
     setLat(cart.lat || "");
     setLng(cart.lng || "");
-    setFoodpandaLink(cart.foodpandaLink || "");
+    setFoodpandaLink(cart.foodpanda_link || "");
     const socialLinks = cart.social_links || {};
     setFacebookLink(socialLinks.facebook || "");
     setInstagramLink(socialLinks.instagram || "");
@@ -178,6 +178,14 @@ export default function OwnerDashboard() {
     e.preventDefault();
     if (!selectedCartId) return;
 
+    const formatUrl = (url: string) => {
+      if (!url.trim()) return "";
+      if (!/^https?:\/\//i.test(url.trim())) {
+        return `https://${url.trim()}`;
+      }
+      return url.trim();
+    };
+
     const { error } = await supabase
       .from("carts")
       .update({
@@ -185,8 +193,8 @@ export default function OwnerDashboard() {
         description,
         lat: lat === "" ? null : Number(lat),
         lng: lng === "" ? null : Number(lng),
-        foodpanda_link: foodpandaLink,
-        social_links: { facebook: facebookLink, instagram: instagramLink },
+        foodpanda_link: formatUrl(foodpandaLink),
+        social_links: { facebook: formatUrl(facebookLink), instagram: formatUrl(instagramLink) },
         operating_hours: operatingHours
       })
       .eq("id", selectedCartId);
@@ -731,7 +739,7 @@ export default function OwnerDashboard() {
                   <div className="space-y-1.5">
                     <label className="text-sm font-medium text-foreground ml-1 flex items-center gap-1"><LinkIcon size={14} className="text-primary"/> FoodPanda Link</label>
                     <input
-                      type="url"
+                      type="text"
                       value={foodpandaLink}
                       onChange={(e) => setFoodpandaLink(e.target.value)}
                       className="w-full px-4 py-2.5 rounded-xl bg-white/50 border border-white/60 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm"
@@ -743,7 +751,7 @@ export default function OwnerDashboard() {
                     <div className="space-y-1.5">
                       <label className="text-sm font-medium text-foreground ml-1 flex items-center gap-1"><Globe size={14} className="text-blue-500"/> Facebook</label>
                       <input
-                        type="url"
+                        type="text"
                         value={facebookLink}
                         onChange={(e) => setFacebookLink(e.target.value)}
                         className="w-full px-4 py-2.5 rounded-xl bg-white/50 border border-white/60 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm"
@@ -753,7 +761,7 @@ export default function OwnerDashboard() {
                     <div className="space-y-1.5">
                       <label className="text-sm font-medium text-foreground ml-1 flex items-center gap-1"><Camera size={14} className="text-pink-500"/> Instagram</label>
                       <input
-                        type="url"
+                        type="text"
                         value={instagramLink}
                         onChange={(e) => setInstagramLink(e.target.value)}
                         className="w-full px-4 py-2.5 rounded-xl bg-white/50 border border-white/60 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm"

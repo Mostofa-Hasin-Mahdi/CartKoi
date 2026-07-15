@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { Loader2, ArrowLeft, Store, MapPin, ExternalLink, Navigation, Clock, CheckCircle2, XCircle, CalendarDays, Star, MessageSquare, Share2 } from "lucide-react";
+import { Loader2, ArrowLeft, Store, MapPin, ExternalLink, Navigation, Clock, CheckCircle2, XCircle, CalendarDays, Star, MessageSquare, Share2, Globe, Camera, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import { formatHoursForDisplay, OperatingHours } from "@/utils/hours";
 import NavBar from "@/components/NavBar";
@@ -265,23 +265,45 @@ export default function CartDetailPage() {
               <p className="text-slate-500 leading-relaxed max-w-2xl break-words whitespace-pre-wrap">{cart.description || "No description provided."}</p>
             </div>
             
-            {/* Action Buttons */}
-            <div className="flex gap-2 w-full md:w-auto mt-4 md:mt-0">
-              <button 
-                onClick={handleShare}
-                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition"
-              >
-                <Share2 size={16} /> Share
-              </button>
-              {cart.lat && cart.lng && (
-                <a 
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${cart.lat},${cart.lng}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition"
+            {/* Action Buttons & Social Links */}
+            <div className="flex flex-col gap-3 w-full md:w-auto mt-4 md:mt-0">
+              <div className="flex gap-2 w-full">
+                <button 
+                  onClick={handleShare}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition"
                 >
-                  <Navigation size={16} /> Directions
-                </a>
+                  <Share2 size={16} /> Share
+                </button>
+                {cart.lat && cart.lng && (
+                  <a 
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${cart.lat},${cart.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition"
+                  >
+                    <Navigation size={16} /> Directions
+                  </a>
+                )}
+              </div>
+              
+              {(cart.foodpanda_link || (cart.social_links && (cart.social_links.facebook || cart.social_links.instagram))) && (
+                <div className="flex flex-wrap gap-2 w-full">
+                  {cart.foodpanda_link && (
+                    <a href={cart.foodpanda_link} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-[#D70F64]/10 text-[#D70F64] rounded-xl font-bold text-xs hover:bg-[#D70F64]/20 transition">
+                      <ShoppingBag size={14} /> Foodpanda
+                    </a>
+                  )}
+                  {cart.social_links?.facebook && (
+                    <a href={cart.social_links.facebook} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-100 text-blue-600 rounded-xl font-bold text-xs hover:bg-blue-200 transition">
+                      <Globe size={14} /> Facebook
+                    </a>
+                  )}
+                  {cart.social_links?.instagram && (
+                    <a href={cart.social_links.instagram} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-pink-100 text-pink-600 rounded-xl font-bold text-xs hover:bg-pink-200 transition">
+                      <Camera size={14} /> Instagram
+                    </a>
+                  )}
+                </div>
               )}
             </div>
           </div>
