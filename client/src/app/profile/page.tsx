@@ -9,7 +9,7 @@ import NavBar from "@/components/NavBar";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function ProfilePage() {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, logout } = useAuth();
   const router = useRouter();
   const supabase = createClient();
 
@@ -66,7 +66,7 @@ export default function ProfilePage() {
   };
 
   const handleSignOut = async () => {
-    await signOut();
+    await logout();
     router.push("/");
   };
 
