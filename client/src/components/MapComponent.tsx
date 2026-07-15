@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { formatHoursForDisplay } from "@/utils/hours";
+import { Crosshair, Loader2 } from "lucide-react";
 
 // Fix missing marker icons in leaflet with next.js
 const customIcon = new L.Icon({
@@ -28,6 +29,8 @@ const openIcon = new L.Icon({
 export default function MapComponent({ carts }: { carts: any[] }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
+  const userMarkerRef = useRef<L.Marker | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
 
   // Default center around Uttara, Dhaka
   const defaultCenter: [number, number] = [23.8728, 90.3984];
@@ -99,5 +102,61 @@ export default function MapComponent({ carts }: { carts: any[] }) {
     };
   }, [carts]);
 
-  return <div ref={mapRef} style={{ height: "100%", width: "100%", zIndex: 0 }} />;
+  const handleLocateMe = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const map = mapInstanceRef.current;
+        if (map) {
+          map.flyTo([latitude, longitude], 16, { animate: true, duration: 1.5 });
+          
+          // Remove old marker if exists
+          if (userMarkerRef.current) {
+            map.removeLayer(userMarkerRef.current);
+          }
+          
+          // Add "You are here" marker
+          const userIcon = L.divIcon({
+            className: "bg-transparent",
+            html: `<div class="w-4 h-4 bg-blue-500 border-2 border-white rounded-full shadow-[0_0_10px_rgba(59,130,246,0.8)] relative"><div class="absolute inset-0 rounded-full animate-ping bg-blue-400 opacity-75"></div></div>`,
+            iconSize: [16, 16],
+            iconAnchor: [8, 8]
+          });
+          
+          userMarkerRef.current = L.marker([latitude, longitude], { icon: userIcon, zIndexOffset: 1000 })
+            .bindPopup("<div class='font-bold text-sm'>You are here</div>")
+            .addTo(map);
+        }
+        setIsLocating(false);
+      },
+      (error) => {
+        console.error("Error locating:", error);
+        alert("Unable to retrieve your location. Please check browser permissions.");
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
+
+  return (
+    <div className="relative w-full h-full">
+      <div ref={mapRef} style={{ height: "100%", width: "100%", zIndex: 0 }} />
+      
+      {/* Locate Me Button */}
+      <button 
+        onClick={handleLocateMe}
+        disabled={isLocating}
+        className="absolute bottom-36 right-4 z-[400] bg-white p-3 rounded-full shadow-lg border border-slate-200 text-slate-700 hover:text-primary hover:bg-slate-50 transition-all focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-70 flex items-center justify-center"
+        aria-label="Locate me"
+      >
+        {isLocating ? <Loader2 size={24} className="animate-spin text-primary" /> : <Crosshair size={24} />}
+      </button>
+    </div>
+  );
 }

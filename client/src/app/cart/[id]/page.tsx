@@ -7,6 +7,7 @@ import { Loader2, ArrowLeft, Store, MapPin, ExternalLink, Navigation, Clock, Che
 import Image from "next/image";
 import { formatHoursForDisplay, OperatingHours } from "@/utils/hours";
 import NavBar from "@/components/NavBar";
+import { calculateDistance } from "@/utils/distance";
 
 export default function CartDetailPage() {
   const params = useParams();
@@ -17,6 +18,9 @@ export default function CartDetailPage() {
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  const [distanceKm, setDistanceKm] = useState<number | null>(null);
+  const [locationDenied, setLocationDenied] = useState(false);
 
   // Review Form State
   const [reviewName, setReviewName] = useState("");
@@ -77,6 +81,25 @@ export default function CartDetailPage() {
 
     fetchCartData();
   }, [params.id]);
+
+  useEffect(() => {
+    if (cart?.lat && cart?.lng) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const dist = calculateDistance(pos.coords.latitude, pos.coords.longitude, cart.lat, cart.lng);
+            setDistanceKm(dist);
+            setLocationDenied(false);
+          },
+          (err) => {
+            if (err.code === err.PERMISSION_DENIED) {
+              setLocationDenied(true);
+            }
+          }
+        );
+      }
+    }
+  }, [cart?.lat, cart?.lng]);
 
   if (loading) {
     return (
@@ -212,7 +235,13 @@ export default function CartDetailPage() {
               <span className="text-[10px] uppercase font-bold text-slate-400 mb-1">Coordinates</span>
               <span className="text-sm font-semibold text-slate-700 flex items-center gap-1">
                 <MapPin size={14} className="text-blue-500" />
-                {cart.lat ? `${cart.lat.toFixed(4)}, ${cart.lng.toFixed(4)}` : 'Unknown'}
+                {distanceKm !== null ? (
+                  <span>{distanceKm < 1 ? `${(distanceKm * 1000).toFixed(0)} m away` : `${distanceKm.toFixed(1)} km away`}</span>
+                ) : locationDenied ? (
+                  <span className="text-slate-400 text-xs italic" title="Location access needed for distance">Access denied</span>
+                ) : (
+                  <span>{cart.lat ? `${cart.lat.toFixed(4)}, ${cart.lng.toFixed(4)}` : 'Unknown'}</span>
+                )}
               </span>
             </div>
           </div>
