@@ -27,7 +27,7 @@ export default function OwnerCTA() {
         </p>
 
         <Link 
-          href="/register-cart" 
+          href="/owners/login" 
           className="inline-flex items-center gap-2 px-8 py-4 rounded-full neumorph-flat bg-primary text-primary-foreground font-semibold text-lg hover:neumorph-pressed transition-shadow"
         >
           Partner With Us <ArrowRight size={20} />

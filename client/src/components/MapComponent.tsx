@@ -80,7 +80,7 @@ export default function MapComponent({ carts }: { carts: any[] }) {
             ${cart.is_open ? 'Open Now' : 'Closed'}
           </div>
           ${cart.operating_hours ? `<p class="text-[10px] text-gray-500 mb-2 font-medium break-words">${formatHoursForDisplay(cart.operating_hours)}</p>` : ''}
-          <a href="/cart/${cart.id}" class="block text-center w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white text-xs py-2 rounded font-bold transition-colors">
+          <a href="/cart/${cart.id}" class="block text-center w-full mt-3 bg-blue-600 hover:bg-blue-700 !text-white text-xs py-2 rounded font-bold transition-colors">
             View Menu
           </a>
         </div>

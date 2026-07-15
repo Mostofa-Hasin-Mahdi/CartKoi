@@ -12,6 +12,7 @@ import { OperatingHours } from "@/utils/hours";
 import { compressImage } from "@/utils/imageCompression";
 import NavBar from "@/components/NavBar";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 const LocationUpdater = dynamic(() => import("@/components/LocationUpdater"), { ssr: false });
 
@@ -513,17 +514,19 @@ export default function OwnerDashboard() {
             </div>
 
             {carts.length === 0 ? (
-              <div className="glass-panel p-12 rounded-[2rem] border border-white/60 shadow-lg text-center flex flex-col items-center justify-center">
-                <Store className="text-slate-400 mb-4" size={48} />
-                <h2 className="text-2xl font-bold text-foreground mb-2">No Food Carts Yet</h2>
-                <p className="text-muted-foreground mb-6">You haven't created any food carts. Get started by creating your first cart!</p>
-                <button
-                  onClick={() => setView('create')}
-                  className="px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold shadow-md hover:shadow-lg transition-all flex items-center gap-2"
-                >
-                  <Plus size={18} /> Create Food Cart
-                </button>
-              </div>
+              <EmptyState 
+                icon={Store}
+                title="No Food Carts Yet"
+                description="You haven't created any food carts. Get started by creating your first cart!"
+                action={
+                  <button
+                    onClick={() => setView('create')}
+                    className="px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2"
+                  >
+                    <Plus size={18} /> Create Food Cart
+                  </button>
+                }
+              />
             ) : (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">

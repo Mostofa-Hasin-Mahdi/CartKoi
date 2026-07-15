@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { createClient } from "@/utils/supabase/client";
 import NavBar from "@/components/NavBar";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 type ViewState = 'list' | 'cart_dashboard';
 
@@ -307,11 +308,11 @@ export default function EmployeeDashboard() {
             </div>
 
             {carts.length === 0 ? (
-              <div className="glass-panel p-12 rounded-[2rem] border border-white/60 shadow-lg text-center flex flex-col items-center justify-center">
-                <Store className="text-slate-400 mb-4" size={48} />
-                <h2 className="text-2xl font-bold text-foreground mb-2">No Assigned Carts</h2>
-                <p className="text-muted-foreground mb-6">You haven't joined any carts yet. Use an invite code above to get started.</p>
-              </div>
+              <EmptyState 
+                icon={Store}
+                title="No Assigned Carts"
+                description="You haven't joined any carts yet. Use an invite code above to get started."
+              />
             ) : (
               <div className="space-y-6">
                 <h2 className="text-2xl font-bold text-foreground">Assigned Carts</h2>
@@ -359,7 +360,7 @@ export default function EmployeeDashboard() {
                         )}
                         <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100">
                           <MapPin size={16} className="text-primary flex-shrink-0" />
-                          <span className="truncate">{cart.location || "Location not set"}</span>
+                          <span className="truncate">{(cart.lat && cart.lng) ? "Pinned on map" : (cart.location || "Location not set")}</span>
                         </div>
                       </div>
                     </div>

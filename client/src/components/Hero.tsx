@@ -127,7 +127,7 @@ export default function Hero() {
                 </div>
                 <h3 className="font-bold text-foreground text-lg line-clamp-1">{cart.name}</h3>
                 <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                  <MapPin size={14} /> {cart.location || "Location not set"}
+                  <MapPin size={14} /> {(cart.lat && cart.lng) ? "Pinned on map" : (cart.location || "Location not set")}
                 </p>
                 <div className="mt-4 flex gap-2 flex-wrap">
                   <span className={`px-3 py-1 text-xs rounded-full font-medium ${cart.is_open ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
