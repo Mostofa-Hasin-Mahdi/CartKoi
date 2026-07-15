@@ -7,14 +7,43 @@ import { Search, Map, MapPin } from "lucide-react";
 import Image from "next/image";
 import cartImage from "@/assets/cart.png";
 
+import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
+
 export default function Hero() {
   const [carts, setCarts] = useState<any[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
-    const stored = localStorage.getItem("cartkoi_carts");
-    if (stored) {
-      setCarts(JSON.parse(stored));
-    }
+    const fetchCarts = async () => {
+      const supabase = createClient();
+      
+      // Fetch the latest 3 open carts
+      const { data: cartData, error: cartError } = await supabase
+        .from('carts')
+        .select(`
+          *,
+          menu_items (*)
+        `)
+        .eq('is_open', true)
+        .order('created_at', { ascending: false })
+        .limit(3);
+        
+      if (!cartError && cartData) {
+        setCarts(cartData);
+      } else {
+        // Fallback to any 3 carts if none are open
+        const { data: fallbackData } = await supabase
+          .from('carts')
+          .select(`*, menu_items (*)`)
+          .order('created_at', { ascending: false })
+          .limit(3);
+          
+        if (fallbackData) setCarts(fallbackData);
+      }
+    };
+    
+    fetchCarts();
   }, []);
 
   return (
@@ -85,21 +114,26 @@ export default function Hero() {
             {carts.slice(0, 3).map((cart, idx) => (
               <div 
                 key={cart.id} 
+                onClick={() => router.push(`/cart/${cart.id}`)}
                 className="glass-panel p-5 rounded-3xl md:animate-float border-white/60 shadow-lg hover:-translate-y-2 transition-transform cursor-pointer"
                 style={{ animationDelay: `${idx * 0.5}s` }}
               >
                 <div className={`w-full h-32 rounded-2xl mb-4 overflow-hidden relative shadow-inner flex items-center justify-center ${idx % 3 === 0 ? 'bg-primary/20' : idx % 3 === 1 ? 'bg-secondary/20' : 'bg-tertiary/20'}`}>
-                  <Image src={cartImage} alt="Cart Logo" fill className="object-contain p-4" />
+                  {cart.image_url ? (
+                    <Image src={cart.image_url} alt="Cart Photo" fill className="object-cover" />
+                  ) : (
+                    <Image src={cartImage} alt="Cart Logo" fill className="object-contain p-4 opacity-50" />
+                  )}
                 </div>
                 <h3 className="font-bold text-foreground text-lg line-clamp-1">{cart.name}</h3>
                 <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
                   <MapPin size={14} /> {cart.location || "Location not set"}
                 </p>
                 <div className="mt-4 flex gap-2 flex-wrap">
-                  <span className={`px-3 py-1 text-xs rounded-full font-medium ${cart.isOpen ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
-                    {cart.isOpen ? 'Open' : 'Closed'}
+                  <span className={`px-3 py-1 text-xs rounded-full font-medium ${cart.is_open ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                    {cart.is_open ? 'Open' : 'Closed'}
                   </span>
-                  {cart.menuItems?.slice(0, 2).map((item: any) => (
+                  {cart.menu_items?.slice(0, 2).map((item: any) => (
                     <span key={item.id} className="px-3 py-1 bg-secondary/20 text-secondary-foreground text-xs rounded-full font-medium truncate max-w-[100px]">
                       {item.name}
                     </span>

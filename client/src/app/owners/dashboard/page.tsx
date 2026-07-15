@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Settings, Link as LinkIcon, Globe, Camera, Clock, Edit2, Trash2, Save, Users, UserX, Navigation, MessageSquare, Star } from "lucide-react";
+import { Plus, Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Settings, Link as LinkIcon, Globe, Camera, Clock, Edit2, Trash2, Save, Users, UserX, Navigation, MessageSquare, Star, Image as ImageIcon } from "lucide-react";
+import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/useAuth";
 import { createClient } from "@/utils/supabase/client";
@@ -56,10 +57,13 @@ export default function OwnerDashboard() {
   const [isAddingItem, setIsAddingItem] = useState(false);
   const [newItemName, setNewItemName] = useState("");
   const [newItemPrice, setNewItemPrice] = useState("");
+  const [newItemImage, setNewItemImage] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [editItemName, setEditItemName] = useState("");
   const [editItemPrice, setEditItemPrice] = useState("");
+  const [editItemImage, setEditItemImage] = useState<File | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -338,8 +342,35 @@ export default function OwnerDashboard() {
     }
   };
 
+  const uploadImage = async (file: File) => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+    const filePath = `${user?.id}/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('cart_images')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      console.error("Upload error:", uploadError);
+      return null;
+    }
+
+    const { data } = supabase.storage
+      .from('cart_images')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  };
+
   const saveNewItem = async () => {
     if (!newItemName.trim() || !newItemPrice || !selectedCartId) return;
+    setIsUploading(true);
+
+    let imageUrl = null;
+    if (newItemImage) {
+      imageUrl = await uploadImage(newItemImage);
+    }
     
     const { data, error } = await supabase
       .from("menu_items")
@@ -347,10 +378,13 @@ export default function OwnerDashboard() {
         cart_id: selectedCartId,
         name: newItemName,
         price: Number(newItemPrice),
-        is_available: true
+        is_available: true,
+        image_url: imageUrl
       })
       .select()
       .single();
+
+    setIsUploading(false);
 
     if (error) {
       alert("Failed to add menu item.");
@@ -359,6 +393,7 @@ export default function OwnerDashboard() {
       setIsAddingItem(false);
       setNewItemName("");
       setNewItemPrice("");
+      setNewItemImage(null);
     }
   };
 
@@ -381,26 +416,38 @@ export default function OwnerDashboard() {
     setEditingItemId(item.id);
     setEditItemName(item.name);
     setEditItemPrice(item.price.toString());
+    setEditItemImage(null);
   };
 
-  const saveEditedItem = async (id: string) => {
+  const saveEditedItem = async (id: string, currentImageUrl: string | null) => {
     if (!editItemName.trim() || !editItemPrice) return;
+    setIsUploading(true);
+
+    let imageUrl = currentImageUrl;
+    if (editItemImage) {
+      const newUrl = await uploadImage(editItemImage);
+      if (newUrl) imageUrl = newUrl;
+    }
 
     const { error } = await supabase
       .from("menu_items")
       .update({
         name: editItemName,
-        price: Number(editItemPrice)
+        price: Number(editItemPrice),
+        image_url: imageUrl
       })
       .eq("id", id);
+
+    setIsUploading(false);
 
     if (error) {
       alert("Failed to update menu item.");
     } else {
       setMenuItems(menuItems.map(item => 
-        item.id === id ? { ...item, name: editItemName, price: Number(editItemPrice) } : item
+        item.id === id ? { ...item, name: editItemName, price: Number(editItemPrice), image_url: imageUrl } : item
       ));
       setEditingItemId(null);
+      setEditItemImage(null);
     }
   };
 
@@ -840,13 +887,13 @@ export default function OwnerDashboard() {
               </div>
 
               {isAddingItem && (
-                <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 mb-4 flex flex-col md:flex-row gap-3">
+                <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 mb-4 flex flex-col md:flex-row gap-3 items-center">
                   <input
                     type="text"
                     placeholder="Item Name"
                     value={newItemName}
                     onChange={e => setNewItemName(e.target.value)}
-                    className="flex-1 px-3 py-2 rounded-lg bg-white/80 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    className="flex-1 w-full md:w-auto px-3 py-2 rounded-lg bg-white/80 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                   />
                   <input
                     type="number"
@@ -855,9 +902,21 @@ export default function OwnerDashboard() {
                     onChange={e => setNewItemPrice(e.target.value)}
                     className="w-full md:w-32 px-3 py-2 rounded-lg bg-white/80 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                   />
-                  <div className="flex gap-2">
-                    <button onClick={saveNewItem} className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold shadow-sm hover:bg-primary/90">Save</button>
-                    <button onClick={() => setIsAddingItem(false)} className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm font-bold hover:bg-slate-300">Cancel</button>
+                  <label className="cursor-pointer w-full md:w-auto px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors">
+                    <ImageIcon size={16} className={newItemImage ? "text-primary" : "text-slate-400"} />
+                    <span className="truncate max-w-[100px]">{newItemImage ? newItemImage.name : "Add Photo"}</span>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      className="hidden" 
+                      onChange={e => e.target.files && setNewItemImage(e.target.files[0])} 
+                    />
+                  </label>
+                  <div className="flex gap-2 w-full md:w-auto">
+                    <button onClick={saveNewItem} disabled={isUploading} className="flex-1 md:flex-none px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold shadow-sm hover:bg-primary/90 disabled:opacity-50 flex items-center justify-center gap-2">
+                      {isUploading ? <Loader2 size={16} className="animate-spin" /> : null} Save
+                    </button>
+                    <button onClick={() => setIsAddingItem(false)} disabled={isUploading} className="flex-1 md:flex-none px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm font-bold hover:bg-slate-300 disabled:opacity-50">Cancel</button>
                   </div>
                 </div>
               )}
@@ -866,12 +925,12 @@ export default function OwnerDashboard() {
                 {menuItems.map(item => (
                   <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-white/40 p-4 rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/60 group gap-3">
                     {editingItemId === item.id ? (
-                      <div className="flex-1 flex flex-col md:flex-row gap-3 mr-4">
+                      <div className="flex-1 flex flex-col md:flex-row gap-3 items-center w-full">
                         <input
                           type="text"
                           value={editItemName}
                           onChange={e => setEditItemName(e.target.value)}
-                          className="flex-1 px-3 py-1.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                          className="flex-1 w-full md:w-auto px-3 py-1.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                         />
                         <input
                           type="number"
@@ -879,15 +938,36 @@ export default function OwnerDashboard() {
                           onChange={e => setEditItemPrice(e.target.value)}
                           className="w-full md:w-24 px-3 py-1.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                         />
-                        <div className="flex gap-1">
-                          <button onClick={() => saveEditedItem(item.id)} className="p-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200"><Save size={16}/></button>
-                          <button onClick={() => setEditingItemId(null)} className="p-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300"><X size={16}/></button>
+                        <label className="cursor-pointer w-full md:w-auto px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors">
+                          <ImageIcon size={16} className={editItemImage ? "text-primary" : "text-slate-400"} />
+                          <span className="truncate max-w-[80px]">{editItemImage ? editItemImage.name : "Change Photo"}</span>
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            className="hidden" 
+                            onChange={e => e.target.files && setEditItemImage(e.target.files[0])} 
+                          />
+                        </label>
+                        <div className="flex gap-1 w-full md:w-auto justify-end">
+                          <button onClick={() => saveEditedItem(item.id, item.image_url)} disabled={isUploading} className="p-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 disabled:opacity-50">
+                            {isUploading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16}/>}
+                          </button>
+                          <button onClick={() => setEditingItemId(null)} disabled={isUploading} className="p-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 disabled:opacity-50">
+                            <X size={16}/>
+                          </button>
                         </div>
                       </div>
                     ) : (
-                      <div className="flex-1">
-                        <p className="font-semibold text-base text-foreground">{item.name}</p>
-                        <p className="text-sm text-muted-foreground">৳ {item.price}</p>
+                      <div className="flex-1 flex items-center gap-3">
+                        {item.image_url && (
+                          <div className="w-12 h-12 relative rounded-lg overflow-hidden border border-slate-200 flex-shrink-0 bg-slate-100">
+                            <Image src={item.image_url} alt={item.name} fill className="object-cover" />
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-semibold text-base text-foreground">{item.name}</p>
+                          <p className="text-sm text-muted-foreground">৳ {item.price}</p>
+                        </div>
                       </div>
                     )}
                     

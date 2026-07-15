@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { Loader2, ArrowLeft, Store, MapPin, ExternalLink, Navigation, Clock, CheckCircle2, XCircle, CalendarDays, Star, MessageSquare } from "lucide-react";
+import Image from "next/image";
 import { formatHoursForDisplay, OperatingHours } from "@/utils/hours";
 import NavBar from "@/components/NavBar";
 
@@ -224,9 +225,16 @@ export default function CartDetailPage() {
           <div className="space-y-3">
             {menuItems.length > 0 ? menuItems.map(item => (
               <div key={item.id} className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl border gap-2 sm:gap-4 ${item.is_available ? 'bg-white border-slate-200 shadow-sm' : 'bg-slate-50 border-slate-100 opacity-60'}`}>
-                <h3 className={`font-bold text-lg ${item.is_available ? 'text-slate-800' : 'text-slate-500 line-through decoration-slate-400'}`}>
-                  {item.name}
-                </h3>
+                <div className="flex items-center gap-4">
+                  {item.image_url && (
+                    <div className="w-16 h-16 relative rounded-xl overflow-hidden border border-slate-200 flex-shrink-0 bg-slate-100">
+                      <Image src={item.image_url} alt={item.name} fill className="object-cover" />
+                    </div>
+                  )}
+                  <h3 className={`font-bold text-lg ${item.is_available ? 'text-slate-800' : 'text-slate-500 line-through decoration-slate-400'}`}>
+                    {item.name}
+                  </h3>
+                </div>
                 <div className="flex items-center gap-2 mt-1 sm:mt-0">
                   <span className="font-black text-primary text-lg">৳{item.price}</span>
                   {item.is_available ? (
