@@ -89,6 +89,15 @@ export default function MapComponent({ carts }: { carts: any[] }) {
       L.marker(position, {
         icon: cart.is_open ? openIcon : customIcon
       })
+      .bindTooltip(
+        `<span class="font-bold text-xs text-slate-800">${cart.name}</span>`,
+        { 
+          permanent: true, 
+          direction: 'bottom', 
+          offset: [0, 0], 
+          className: "bg-white/90 backdrop-blur shadow-sm border border-white/50 rounded px-1.5 py-0.5 whitespace-nowrap" 
+        }
+      )
       .bindPopup(popupContent)
       .addTo(map);
     });

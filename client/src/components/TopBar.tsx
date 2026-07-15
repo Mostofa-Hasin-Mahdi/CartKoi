@@ -9,6 +9,10 @@ export default function TopBar() {
   const { user, loading } = useAuth();
   const pathname = usePathname();
 
+  if (pathname === "/explore") {
+    return null;
+  }
+
   return (
     <div className="absolute top-0 left-0 w-full p-4 md:p-6 grid grid-cols-3 items-center z-50 gap-2">
       {/* Location Top Left */}

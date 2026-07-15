@@ -12,7 +12,7 @@ const MapComponent = dynamic(() => import("@/components/MapComponent"), {
   ssr: false,
   loading: () => (
     <div className="w-full h-full relative bg-slate-900/50 overflow-hidden">
-      <Skeleton className="absolute top-20 md:top-6 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-md h-16 rounded-2xl bg-white/20" />
+      <Skeleton className="absolute top-4 md:top-6 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-md h-16 rounded-2xl bg-white/20" />
       <Skeleton className="absolute top-1/4 left-1/4 w-12 h-12 rounded-full bg-white/20" />
       <Skeleton className="absolute top-1/2 right-1/4 w-12 h-12 rounded-full bg-white/20" />
       <Skeleton className="absolute bottom-1/3 left-1/2 w-12 h-12 rounded-full bg-white/20" />
@@ -61,7 +61,7 @@ export default function ExplorePage() {
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="absolute top-20 md:top-6 left-1/2 -translate-x-1/2 z-[1000] w-[95%] max-w-md bg-white/70 backdrop-blur-md border border-white/40 shadow-xl rounded-2xl p-4 flex flex-col gap-3"
+        className="absolute top-4 md:top-6 left-1/2 -translate-x-1/2 z-[1000] w-[95%] max-w-md bg-white/70 backdrop-blur-md border border-white/40 shadow-xl rounded-2xl p-4 flex flex-col gap-3"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-slate-900">
