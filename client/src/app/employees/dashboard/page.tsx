@@ -436,6 +436,9 @@ export default function EmployeeDashboard() {
                   <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-white/40 p-4 rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/60 gap-3">
                     <div>
                       <p className="font-semibold text-base text-foreground">{item.name}</p>
+                      {item.description && (
+                        <p className="text-xs text-slate-500 mb-1 line-clamp-2">{item.description}</p>
+                      )}
                       <p className="text-sm text-muted-foreground">৳ {item.price}</p>
                     </div>
                     

@@ -332,9 +332,16 @@ export default function CartDetailPage() {
                       <Image src={item.image_url} alt={item.name} fill className="object-cover" />
                     </div>
                   )}
-                  <h3 className={`font-bold text-lg ${item.is_available ? 'text-slate-800' : 'text-slate-500 line-through decoration-slate-400'}`}>
-                    {item.name}
-                  </h3>
+                  <div className="flex flex-col">
+                    <h3 className={`font-bold text-lg ${item.is_available ? 'text-slate-800' : 'text-slate-500 line-through decoration-slate-400'}`}>
+                      {item.name}
+                    </h3>
+                    {item.description && (
+                      <p className={`text-sm mt-1 line-clamp-2 ${item.is_available ? 'text-slate-500' : 'text-slate-400'}`}>
+                        {item.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 mt-1 sm:mt-0">
                   <span className="font-black text-primary text-lg">৳{item.price}</span>
