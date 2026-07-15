@@ -47,7 +47,7 @@ export default function NavBar() {
             
             {/* Show Dashboard if logged in, otherwise "For Owners" CTA */}
             {user ? (
-              <Link href="/owners/dashboard" className={`flex flex-col md:flex-row items-center gap-1 transition-colors ${pathname === '/owners/dashboard' ? 'text-primary' : 'text-slate-400 hover:text-white'}`}>
+              <Link href={user.role === "employee" ? "/employees/dashboard" : "/owners/dashboard"} className={`flex flex-col md:flex-row items-center gap-1 transition-colors ${pathname.includes('dashboard') ? 'text-primary' : 'text-slate-400 hover:text-white'}`}>
                 <LayoutDashboard size={22} className="md:w-4 md:h-4" /> 
                 <span className="text-[10px] md:text-sm font-medium mt-1 md:mt-0">Dashboard</span>
               </Link>

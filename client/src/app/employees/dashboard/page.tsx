@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Power, MapPin, Store, Check, X, Loader2, ArrowLeft } from "lucide-react";
+import dynamic from "next/dynamic";
+import { Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Navigation } from "lucide-react";
+
+const LocationUpdater = dynamic(() => import("@/components/LocationUpdater"), { ssr: false });
 import { useAuth } from "@/hooks/useAuth";
 import { createClient } from "@/utils/supabase/client";
 
@@ -25,6 +28,11 @@ export default function EmployeeDashboard() {
   const [cartName, setCartName] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [menuItems, setMenuItems] = useState<any[]>([]);
+  
+  const [lat, setLat] = useState<number | null>(null);
+  const [lng, setLng] = useState<number | null>(null);
+  const [isSavingLocation, setIsSavingLocation] = useState(false);
+  const [isUpdatingBulk, setIsUpdatingBulk] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -104,6 +112,8 @@ export default function EmployeeDashboard() {
     setSelectedCartId(cart.id);
     setCartName(cart.name);
     setIsOpen(cart.is_open || false);
+    setLat(cart.lat || null);
+    setLng(cart.lng || null);
     
     const { data } = await supabase
       .from("menu_items")
@@ -150,6 +160,46 @@ export default function EmployeeDashboard() {
       ));
       alert("Failed to update menu item status. Check permissions.");
     }
+  };
+
+  const handleBulkSoldOut = async () => {
+    if (!selectedCartId) return;
+    setIsUpdatingBulk(true);
+    
+    // Optimistic UI update
+    const previousItems = [...menuItems];
+    setMenuItems(menuItems.map(item => ({ ...item, is_available: false })));
+    
+    const { error } = await supabase
+      .from("menu_items")
+      .update({ is_available: false })
+      .eq("cart_id", selectedCartId);
+      
+    if (error) {
+      setMenuItems(previousItems);
+      alert("Failed to mark all as sold out. Check permissions.");
+    }
+    setIsUpdatingBulk(false);
+  };
+
+  const handleSaveLocation = async (newLat: number, newLng: number) => {
+    if (!selectedCartId) return;
+    setIsSavingLocation(true);
+    
+    const { error } = await supabase
+      .from("carts")
+      .update({ lat: newLat, lng: newLng })
+      .eq("id", selectedCartId);
+      
+    if (error) {
+      alert("Failed to update location.");
+    } else {
+      setLat(newLat);
+      setLng(newLng);
+      alert("Location saved successfully! The map will now show the cart here.");
+      fetchAssignedCarts(); // update list
+    }
+    setIsSavingLocation(false);
   };
 
   if (loading || !user || isLoadingCarts) {
@@ -285,9 +335,19 @@ export default function EmployeeDashboard() {
             </div>
 
             <div className="glass-panel p-6 md:p-8 rounded-[2rem] border border-white/60 shadow-lg flex flex-col min-h-[400px]">
-              <div className="mb-6">
-                <h2 className="text-xl font-bold text-foreground">Menu Stock</h2>
-                <p className="text-xs text-muted-foreground mt-1">Mark items as sold out when they run out.</p>
+              <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-foreground">Menu Stock</h2>
+                  <p className="text-xs text-muted-foreground mt-1">Mark items as sold out when they run out.</p>
+                </div>
+                <button
+                  onClick={handleBulkSoldOut}
+                  disabled={isUpdatingBulk || menuItems.every(i => !i.is_available) || menuItems.length === 0}
+                  className="px-4 py-2 bg-red-100 text-red-700 font-bold text-sm rounded-lg hover:bg-red-200 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {isUpdatingBulk ? <Loader2 size={16} className="animate-spin" /> : <X size={16} />} 
+                  Mark All Sold Out
+                </button>
               </div>
 
               <div className="flex-1 space-y-3 overflow-y-auto pr-1">
@@ -316,6 +376,20 @@ export default function EmployeeDashboard() {
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* Location Map Section */}
+            <div className="glass-panel p-6 md:p-8 rounded-[2rem] border border-white/60 shadow-lg">
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-foreground flex items-center gap-2"><Navigation size={20} className="text-blue-500" /> Live Location</h2>
+                <p className="text-xs text-muted-foreground mt-1">Drag the marker to update your cart's exact location for customers.</p>
+              </div>
+              <LocationUpdater 
+                initialLat={lat} 
+                initialLng={lng} 
+                onSave={handleSaveLocation} 
+                isSaving={isSavingLocation} 
+              />
             </div>
           </motion.div>
         )}

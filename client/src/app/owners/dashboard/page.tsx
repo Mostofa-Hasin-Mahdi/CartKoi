@@ -3,9 +3,12 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Settings, Link as LinkIcon, Globe, Camera, Clock, Edit2, Trash2, Save, Users, UserX } from "lucide-react";
+import { Plus, Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Settings, Link as LinkIcon, Globe, Camera, Clock, Edit2, Trash2, Save, Users, UserX, Navigation } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/useAuth";
 import { createClient } from "@/utils/supabase/client";
+
+const LocationUpdater = dynamic(() => import("@/components/LocationUpdater"), { ssr: false });
 
 type ViewState = 'list' | 'create' | 'cart_dashboard' | 'settings' | 'employees';
 
@@ -45,6 +48,8 @@ export default function OwnerDashboard() {
   const [isOpen, setIsOpen] = useState(false);
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [cartEmployees, setCartEmployees] = useState<any[]>([]);
+  const [isSavingLocation, setIsSavingLocation] = useState(false);
+  const [isUpdatingBulk, setIsUpdatingBulk] = useState(false);
 
   // Menu Management States
   const [isAddingItem, setIsAddingItem] = useState(false);
@@ -115,6 +120,8 @@ export default function OwnerDashboard() {
     setSelectedCartId(cart.id);
     setCartName(cart.name); // Need name for the header
     setIsOpen(cart.is_open || false);
+    setLat(cart.lat || "");
+    setLng(cart.lng || "");
     
     // Fetch menu items
     const { data } = await supabase
@@ -225,6 +232,46 @@ export default function OwnerDashboard() {
     } else {
       setCartEmployees(cartEmployees.filter(emp => emp.id !== employeeId));
     }
+  };
+
+  const handleBulkSoldOut = async () => {
+    if (!selectedCartId) return;
+    setIsUpdatingBulk(true);
+    
+    // Optimistic UI update
+    const previousItems = [...menuItems];
+    setMenuItems(menuItems.map(item => ({ ...item, is_available: false })));
+    
+    const { error } = await supabase
+      .from("menu_items")
+      .update({ is_available: false })
+      .eq("cart_id", selectedCartId);
+      
+    if (error) {
+      setMenuItems(previousItems);
+      alert("Failed to mark all as sold out. Check permissions.");
+    }
+    setIsUpdatingBulk(false);
+  };
+
+  const handleSaveLocation = async (newLat: number, newLng: number) => {
+    if (!selectedCartId) return;
+    setIsSavingLocation(true);
+    
+    const { error } = await supabase
+      .from("carts")
+      .update({ lat: newLat, lng: newLng })
+      .eq("id", selectedCartId);
+      
+    if (error) {
+      alert("Failed to update location.");
+    } else {
+      setLat(newLat);
+      setLng(newLng);
+      alert("Location saved successfully! The map will now show the cart here.");
+      fetchCarts(); // update list
+    }
+    setIsSavingLocation(false);
   };
 
   const handleToggleOpen = async () => {
@@ -742,19 +789,28 @@ export default function OwnerDashboard() {
 
             {/* Menu Management - Expanded full width for dashboard */}
             <div className="glass-panel p-6 md:p-8 rounded-[2rem] border border-white/60 shadow-lg flex flex-col min-h-[400px]">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
                 <div>
                   <h2 className="text-xl font-bold text-foreground">Live Menu Stock</h2>
                   <p className="text-xs text-muted-foreground mt-1">Toggle items as they sell out so customers know what's available.</p>
                 </div>
-                {!isAddingItem && (
-                  <button 
-                    onClick={() => setIsAddingItem(true)}
-                    className="flex items-center gap-1 text-xs font-semibold bg-tertiary/20 text-tertiary-foreground px-3 py-1.5 rounded-full hover:bg-tertiary/30 transition-colors"
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleBulkSoldOut}
+                    disabled={isUpdatingBulk || menuItems.every(i => !i.is_available) || menuItems.length === 0}
+                    className="flex items-center gap-1 text-xs font-semibold bg-red-100 text-red-700 px-3 py-1.5 rounded-full hover:bg-red-200 transition-colors disabled:opacity-50"
                   >
-                    <Plus size={14} /> Add Item
+                    {isUpdatingBulk ? <Loader2 size={14} className="animate-spin" /> : <X size={14} />} Mark All Sold Out
                   </button>
-                )}
+                  {!isAddingItem && (
+                    <button 
+                      onClick={() => setIsAddingItem(true)}
+                      className="flex items-center gap-1 text-xs font-semibold bg-tertiary/20 text-tertiary-foreground px-3 py-1.5 rounded-full hover:bg-tertiary/30 transition-colors"
+                    >
+                      <Plus size={14} /> Add Item
+                    </button>
+                  )}
+                </div>
               </div>
 
               {isAddingItem && (
@@ -843,6 +899,20 @@ export default function OwnerDashboard() {
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* Location Map Section */}
+            <div className="glass-panel p-6 md:p-8 rounded-[2rem] border border-white/60 shadow-lg mt-6">
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-foreground flex items-center gap-2"><Navigation size={20} className="text-blue-500" /> Live Location</h2>
+                <p className="text-xs text-muted-foreground mt-1">Drag the marker to update your cart's exact location for customers.</p>
+              </div>
+              <LocationUpdater 
+                initialLat={lat === "" ? null : lat} 
+                initialLng={lng === "" ? null : lng} 
+                onSave={handleSaveLocation} 
+                isSaving={isSavingLocation} 
+              />
             </div>
           </motion.div>
         )}
