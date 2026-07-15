@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Settings, Link as LinkIcon, Globe, Camera, Clock, Edit2, Trash2, Save, Users, UserX, Navigation } from "lucide-react";
+import { Plus, Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Settings, Link as LinkIcon, Globe, Camera, Clock, Edit2, Trash2, Save, Users, UserX, Navigation, MessageSquare, Star } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/useAuth";
 import { createClient } from "@/utils/supabase/client";
@@ -50,6 +50,7 @@ export default function OwnerDashboard() {
   const [cartEmployees, setCartEmployees] = useState<any[]>([]);
   const [isSavingLocation, setIsSavingLocation] = useState(false);
   const [isUpdatingBulk, setIsUpdatingBulk] = useState(false);
+  const [reviews, setReviews] = useState<any[]>([]);
 
   // Menu Management States
   const [isAddingItem, setIsAddingItem] = useState(false);
@@ -124,13 +125,23 @@ export default function OwnerDashboard() {
     setLng(cart.lng || "");
     
     // Fetch menu items
-    const { data } = await supabase
+    const { data: menuData } = await supabase
       .from("menu_items")
       .select("*")
       .eq("cart_id", cart.id)
       .order("created_at", { ascending: false });
       
-    setMenuItems(data || []);
+    setMenuItems(menuData || []);
+
+    // Fetch reviews
+    const { data: reviewData } = await supabase
+      .from("reviews")
+      .select("*")
+      .eq("cart_id", cart.id)
+      .order("created_at", { ascending: false });
+      
+    setReviews(reviewData || []);
+    
     setView('cart_dashboard');
   };
 
@@ -231,6 +242,21 @@ export default function OwnerDashboard() {
       alert("Failed to remove employee.");
     } else {
       setCartEmployees(cartEmployees.filter(emp => emp.id !== employeeId));
+    }
+  };
+
+  const deleteReview = async (reviewId: string) => {
+    if (!confirm("Are you sure you want to delete this review?")) return;
+    
+    const { error } = await supabase
+      .from("reviews")
+      .delete()
+      .eq("id", reviewId);
+      
+    if (error) {
+      alert("Failed to delete review.");
+    } else {
+      setReviews(reviews.filter(r => r.id !== reviewId));
     }
   };
 
@@ -913,6 +939,45 @@ export default function OwnerDashboard() {
                 onSave={handleSaveLocation} 
                 isSaving={isSavingLocation} 
               />
+            </div>
+
+            {/* Reviews Moderation Section */}
+            <div className="glass-panel p-6 md:p-8 rounded-[2rem] border border-white/60 shadow-lg mt-6">
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-foreground flex items-center gap-2"><MessageSquare size={20} className="text-primary" /> Review Moderation</h2>
+                <p className="text-xs text-muted-foreground mt-1">Monitor and delete inappropriate anonymous reviews for your cart.</p>
+              </div>
+              
+              <div className="space-y-4">
+                {reviews.length > 0 ? reviews.map(review => (
+                  <div key={review.id} className="bg-white/50 p-5 rounded-2xl border border-white/60 flex flex-col md:flex-row md:items-start justify-between gap-4">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-bold text-slate-800">{review.reviewer_name}</h4>
+                        <div className="flex items-center gap-1 text-yellow-500 bg-yellow-50 px-2 py-0.5 rounded-full">
+                          <Star size={12} fill="currentColor" />
+                          <span className="text-xs font-bold">{review.rating}</span>
+                        </div>
+                      </div>
+                      {review.comment && (
+                        <p className="text-slate-600 text-sm mt-2">{review.comment}</p>
+                      )}
+                      <p className="text-xs text-slate-400 mt-2">{new Date(review.created_at).toLocaleDateString()}</p>
+                    </div>
+                    <button
+                      onClick={() => deleteReview(review.id)}
+                      className="px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-xs font-bold hover:bg-red-200 transition flex items-center gap-1 self-start"
+                    >
+                      <Trash2 size={14} /> Delete
+                    </button>
+                  </div>
+                )) : (
+                  <div className="text-center py-8 text-muted-foreground bg-white/40 rounded-2xl border border-white/40">
+                    <MessageSquare size={32} className="mx-auto mb-2 text-slate-300" />
+                    <p>No reviews yet.</p>
+                  </div>
+                )}
+              </div>
             </div>
           </motion.div>
         )}

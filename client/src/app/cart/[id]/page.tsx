@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { Loader2, ArrowLeft, Store, MapPin, ExternalLink, Navigation, Clock, CheckCircle2, XCircle, CalendarDays } from "lucide-react";
+import { Loader2, ArrowLeft, Store, MapPin, ExternalLink, Navigation, Clock, CheckCircle2, XCircle, CalendarDays, Star, MessageSquare } from "lucide-react";
 import { formatHoursForDisplay, OperatingHours } from "@/utils/hours";
 import NavBar from "@/components/NavBar";
 
@@ -14,7 +14,23 @@ export default function CartDetailPage() {
   
   const [cart, setCart] = useState<any>(null);
   const [menuItems, setMenuItems] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Review Form State
+  const [reviewName, setReviewName] = useState("");
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewRating, setReviewRating] = useState(5);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [hasReviewed, setHasReviewed] = useState(false);
+
+  useEffect(() => {
+    // Check local storage for spam protection
+    if (params.id) {
+      const reviewed = localStorage.getItem(`has_reviewed_${params.id}`);
+      if (reviewed) setHasReviewed(true);
+    }
+  }, [params.id]);
 
   useEffect(() => {
     const fetchCartData = async () => {
@@ -41,6 +57,16 @@ export default function CartDetailPage() {
         if (menuError) throw menuError;
         setMenuItems(menuData || []);
 
+        // Fetch reviews
+        const { data: reviewData, error: reviewError } = await supabase
+          .from("reviews")
+          .select("*")
+          .eq("cart_id", params.id)
+          .order("created_at", { ascending: false });
+
+        if (reviewError) throw reviewError;
+        setReviews(reviewData || []);
+
       } catch (err) {
         console.error("Error fetching cart data:", err);
       } finally {
@@ -58,6 +84,50 @@ export default function CartDetailPage() {
       </main>
     );
   }
+
+  if (!cart) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-950">
+        <p className="text-white">Cart not found.</p>
+      </main>
+    );
+  }
+
+  const averageRating = reviews.length > 0 
+    ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) 
+    : "New";
+
+  const submitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (hasReviewed || !reviewName.trim() || !params.id) return;
+    
+    setIsSubmittingReview(true);
+    
+    const newReview = {
+      cart_id: params.id,
+      reviewer_name: reviewName.trim(),
+      rating: reviewRating,
+      comment: reviewComment.trim() || null
+    };
+
+    const { data, error } = await supabase
+      .from("reviews")
+      .insert(newReview)
+      .select()
+      .single();
+
+    if (error) {
+      alert("Failed to submit review.");
+    } else {
+      setReviews([data, ...reviews]);
+      setHasReviewed(true);
+      localStorage.setItem(`has_reviewed_${params.id}`, "true");
+      setReviewName("");
+      setReviewComment("");
+      setReviewRating(5);
+    }
+    setIsSubmittingReview(false);
+  };
 
   if (!cart) {
     return (
@@ -94,6 +164,13 @@ export default function CartDetailPage() {
                 <div className={`px-3 py-1 rounded-full text-xs font-bold border ${cart.is_open ? 'bg-green-100 text-green-700 border-green-200' : 'bg-slate-100 text-slate-500 border-slate-200'}`}>
                   {cart.is_open ? 'Open Now' : 'Closed'}
                 </div>
+              </div>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center text-yellow-500">
+                  <Star size={18} fill="currentColor" />
+                </div>
+                <span className="font-bold text-slate-700">{averageRating}</span>
+                <span className="text-sm text-slate-400">({reviews.length} reviews)</span>
               </div>
               <p className="text-slate-500 leading-relaxed max-w-2xl">{cart.description || "No description provided."}</p>
             </div>
@@ -166,6 +243,98 @@ export default function CartDetailPage() {
                 <p className="text-slate-400 font-medium">No menu items added yet.</p>
               </div>
             )}
+          </div>
+
+          {/* Reviews Section */}
+          <div className="mt-12 pt-8 border-t border-slate-100">
+            <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+              <MessageSquare size={24} className="text-primary" /> Customer Reviews
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="md:col-span-2 space-y-4">
+                {reviews.length > 0 ? reviews.map(review => (
+                  <div key={review.id} className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-bold text-slate-800">{review.reviewer_name}</h4>
+                      <div className="flex items-center gap-1 text-yellow-500">
+                        <Star size={14} fill="currentColor" />
+                        <span className="text-sm font-bold">{review.rating}</span>
+                      </div>
+                    </div>
+                    {review.comment && (
+                      <p className="text-slate-600 text-sm">{review.comment}</p>
+                    )}
+                    <p className="text-xs text-slate-400 mt-3">{new Date(review.created_at).toLocaleDateString()}</p>
+                  </div>
+                )) : (
+                  <p className="text-slate-500">No reviews yet. Be the first to leave one!</p>
+                )}
+              </div>
+
+              <div className="md:col-span-1">
+                {!hasReviewed ? (
+                  <form onSubmit={submitReview} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm sticky top-24">
+                    <h3 className="font-bold text-lg text-slate-900 mb-4">Leave a Review</h3>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Your Name</label>
+                        <input
+                          required
+                          type="text"
+                          value={reviewName}
+                          onChange={e => setReviewName(e.target.value)}
+                          className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                          placeholder="e.g. John D."
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Rating</label>
+                        <div className="flex gap-2">
+                          {[1, 2, 3, 4, 5].map(star => (
+                            <button
+                              key={star}
+                              type="button"
+                              onClick={() => setReviewRating(star)}
+                              className={`p-1 ${reviewRating >= star ? 'text-yellow-500' : 'text-slate-300'}`}
+                            >
+                              <Star size={24} fill={reviewRating >= star ? "currentColor" : "none"} />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Comment (Optional)</label>
+                        <textarea
+                          value={reviewComment}
+                          onChange={e => setReviewComment(e.target.value)}
+                          rows={3}
+                          className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                          placeholder="How was the food?"
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={isSubmittingReview || !reviewName.trim()}
+                        className="w-full py-2.5 bg-primary text-white rounded-xl font-bold shadow-sm hover:bg-primary/90 transition disabled:opacity-50"
+                      >
+                        {isSubmittingReview ? "Submitting..." : "Submit Review"}
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="bg-green-50 p-6 rounded-2xl border border-green-100 text-center sticky top-24">
+                    <CheckCircle2 size={40} className="mx-auto text-green-500 mb-3" />
+                    <h3 className="font-bold text-slate-900 mb-1">Thanks for your review!</h3>
+                    <p className="text-sm text-slate-600">Your feedback helps others find great food.</p>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
