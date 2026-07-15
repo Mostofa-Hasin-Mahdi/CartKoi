@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
-import { Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Navigation } from "lucide-react";
+import { Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Navigation, Phone, User } from "lucide-react";
 
 const LocationUpdater = dynamic(() => import("@/components/LocationUpdater"), { ssr: false });
 import { useAuth } from "@/hooks/useAuth";
@@ -51,10 +51,27 @@ export default function EmployeeDashboard() {
       .eq('employee_id', user.id);
       
     if (error) {
-      console.error("Error fetching carts:", error);
+      console.error("Error fetching carts:", JSON.stringify(error));
     } else if (data) {
       // The join returns { carts: { ...cartData } }
       const formattedCarts = data.map((row: any) => row.carts).filter(Boolean);
+      
+      // Fetch owner profiles for these carts manually to avoid PostgREST ambiguities
+      const ownerIds = [...new Set(formattedCarts.map((c: any) => c.owner_id))].filter(Boolean);
+      
+      if (ownerIds.length > 0) {
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id, full_name, phone_number')
+          .in('id', ownerIds);
+          
+        if (profilesData) {
+          formattedCarts.forEach((cart: any) => {
+            cart.profiles = profilesData.find(p => p.id === cart.owner_id);
+          });
+        }
+      }
+      
       setCarts(formattedCarts);
     }
     setIsLoadingCarts(false);
@@ -269,7 +286,6 @@ export default function EmployeeDashboard() {
                   {carts.map(cart => (
                     <div 
                       key={cart.id} 
-                      onClick={() => handleSelectCartDashboard(cart)}
                       className="glass-panel p-6 rounded-[1.5rem] border border-white/60 shadow-md hover:shadow-lg transition-all flex flex-col cursor-pointer hover:scale-[1.02]"
                     >
                       <div className="flex justify-between items-start mb-4">
@@ -281,7 +297,37 @@ export default function EmployeeDashboard() {
                         </div>
                       </div>
                       <h3 className="text-xl font-bold text-foreground mb-1">{cart.name}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{cart.description}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{cart.description}</p>
+                      
+                      <div className="flex gap-2 mb-4">
+                        <button
+                          onClick={() => handleSelectCartDashboard(cart)}
+                          className="px-4 py-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-lg text-sm font-bold flex-1 text-center transition"
+                        >
+                          Dashboard
+                        </button>
+                      </div>
+                      
+                      {/* Cart Details & Owner Info */}
+                      <div className="flex flex-col gap-2 p-4 pt-0">
+                        {cart.profiles && (
+                          <div className="bg-slate-50 rounded-lg p-3 border border-slate-100 space-y-1.5">
+                            <p className="text-[10px] uppercase font-bold text-slate-400">Owner Contact</p>
+                            <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                              <User size={14} className="text-primary" /> {cart.profiles.full_name}
+                            </div>
+                            {cart.profiles.phone_number && (
+                              <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                                <Phone size={14} className="text-primary" /> {cart.profiles.phone_number}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                          <MapPin size={16} className="text-primary flex-shrink-0" />
+                          <span className="truncate">{cart.location || "Location not set"}</span>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>

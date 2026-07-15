@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Settings, Link as LinkIcon, Globe, Camera, Clock, Edit2, Trash2, Save, Users, UserX, Navigation, MessageSquare, Star, Image as ImageIcon } from "lucide-react";
+import { Plus, Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Settings, Link as LinkIcon, Globe, Camera, Clock, Edit2, Trash2, Save, Users, UserX, Navigation, MessageSquare, Star, Image as ImageIcon, Phone } from "lucide-react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/useAuth";
@@ -222,7 +222,7 @@ export default function OwnerDashboard() {
     // Fetch employees for this cart
     const { data, error } = await supabase
       .from("cart_employees")
-      .select("employee_id, profiles(full_name, id)")
+      .select("employee_id, profiles(full_name, id, phone_number)")
       .eq("cart_id", cart.id);
       
     if (error) {
@@ -795,8 +795,19 @@ export default function OwnerDashboard() {
                           {emp?.full_name?.charAt(0).toUpperCase() || "U"}
                         </div>
                         <div>
-                          <p className="font-bold text-foreground">{emp?.full_name || "Unknown User"}</p>
-                          <p className="text-xs text-muted-foreground">ID: {emp?.id?.substring(0, 8)}...</p>
+                          <p className="font-bold text-foreground flex items-center gap-2">
+                            {emp?.full_name || "Unknown User"}
+                          </p>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                            <span className="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-md text-slate-600">
+                              ID: {emp?.id?.substring(0, 8)}
+                            </span>
+                            {emp?.phone_number && (
+                              <span className="flex items-center gap-1 text-slate-600">
+                                <Phone size={12} /> {emp.phone_number}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <button

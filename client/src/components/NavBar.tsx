@@ -16,7 +16,7 @@ export default function NavBar() {
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className={`fixed z-50 flex items-center bg-slate-950 text-white border border-slate-800 shadow-2xl transition-all duration-300 bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 w-[95%] ${isAuthPage ? 'md:w-[380px]' : 'md:w-[520px]'} h-[64px] md:h-[68px] rounded-full px-4 md:px-8 justify-around`}
+      className={`fixed z-50 flex items-center bg-slate-950 text-white border border-slate-800 shadow-2xl transition-all duration-300 bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 w-[95%] md:w-max h-[64px] md:h-[68px] rounded-full px-4 md:px-8 justify-around`}
     >
       <nav className="flex items-center w-full justify-around md:justify-center md:gap-8 flex-1">
         {isAuthPage ? (
@@ -47,10 +47,16 @@ export default function NavBar() {
             
             {/* Show Dashboard if logged in, otherwise "For Owners" CTA */}
             {user ? (
-              <Link href={user.role === "employee" ? "/employees/dashboard" : "/owners/dashboard"} className={`flex flex-col md:flex-row items-center gap-1 transition-colors ${pathname.includes('dashboard') ? 'text-primary' : 'text-slate-400 hover:text-white'}`}>
-                <LayoutDashboard size={22} className="md:w-4 md:h-4" /> 
-                <span className="text-[10px] md:text-sm font-medium mt-1 md:mt-0">Dashboard</span>
-              </Link>
+              <>
+                <Link href={user.role === "employee" ? "/employees/dashboard" : "/owners/dashboard"} className={`flex flex-col md:flex-row items-center gap-1 transition-colors ${pathname.includes('dashboard') ? 'text-primary' : 'text-slate-400 hover:text-white'}`}>
+                  <LayoutDashboard size={22} className="md:w-4 md:h-4" /> 
+                  <span className="text-[10px] md:text-sm font-medium mt-1 md:mt-0">Dashboard</span>
+                </Link>
+                <Link href="/profile" className={`flex flex-col md:flex-row items-center gap-1 transition-colors ${pathname === '/profile' ? 'text-primary' : 'text-slate-400 hover:text-white'}`}>
+                  <User size={22} className="md:w-4 md:h-4" /> 
+                  <span className="text-[10px] md:text-sm font-medium mt-1 md:mt-0">Profile</span>
+                </Link>
+              </>
             ) : (
               <Link href="/#owners" className="flex flex-col md:flex-row items-center gap-1 text-slate-400 hover:text-white transition-colors">
                 <User size={22} className="md:w-4 md:h-4" /> 
