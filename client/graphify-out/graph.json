@@ -634,6 +634,26 @@
       "norm_label": "config"
     },
     {
+      "label": "route.ts",
+      "file_type": "code",
+      "source_file": "src/app/api/cart/[id]/summary/route.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "summary_route",
+      "community": 17,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "src/app/api/cart/[id]/summary/route.ts",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "summary_route_get",
+      "community": 17,
+      "norm_label": "get()"
+    },
+    {
       "label": "page.tsx",
       "file_type": "code",
       "source_file": "src/app/cart/[id]/page.tsx",
@@ -700,7 +720,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_app_employees_signup_page_tsx_signup_page",
-      "community": 0,
+      "community": 7,
       "norm_label": "page.tsx"
     },
     {
@@ -710,7 +730,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "signup_page_employeesignuppage",
-      "community": 0,
+      "community": 7,
       "norm_label": "employeesignuppage()"
     },
     {
@@ -720,7 +740,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "explore_page",
-      "community": 0,
+      "community": 7,
       "norm_label": "page.tsx"
     },
     {
@@ -730,7 +750,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "explore_page_mapcomponent",
-      "community": 0,
+      "community": 7,
       "norm_label": "mapcomponent"
     },
     {
@@ -740,7 +760,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "explore_page_explorepage",
-      "community": 0,
+      "community": 7,
       "norm_label": "explorepage()"
     },
     {
@@ -750,7 +770,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_layout",
-      "community": 11,
+      "community": 0,
       "norm_label": "layout.tsx"
     },
     {
@@ -760,7 +780,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "app_layout_poppins",
-      "community": 11,
+      "community": 0,
       "norm_label": "poppins"
     },
     {
@@ -770,7 +790,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "app_layout_metadata",
-      "community": 11,
+      "community": 0,
       "norm_label": "metadata"
     },
     {
@@ -780,7 +800,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "app_layout_rootlayout",
-      "community": 11,
+      "community": 0,
       "norm_label": "rootlayout()"
     },
     {
@@ -830,7 +850,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "login_page",
-      "community": 0,
+      "community": 7,
       "norm_label": "page.tsx"
     },
     {
@@ -840,7 +860,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "login_page_loginpage",
-      "community": 0,
+      "community": 7,
       "norm_label": "loginpage()"
     },
     {
@@ -850,7 +870,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_app_owners_signup_page_tsx_signup_page",
-      "community": 0,
+      "community": 7,
       "norm_label": "page.tsx"
     },
     {
@@ -860,7 +880,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "signup_page_signuppage",
-      "community": 0,
+      "community": 7,
       "norm_label": "signuppage()"
     },
     {
@@ -930,7 +950,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_hero",
-      "community": 0,
+      "community": 7,
       "norm_label": "hero.tsx"
     },
     {
@@ -940,7 +960,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "components_hero_hero",
-      "community": 0,
+      "community": 7,
       "norm_label": "hero()"
     },
     {
@@ -1350,7 +1370,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "supabase_client",
-      "community": 0,
+      "community": 7,
       "norm_label": "client.ts"
     },
     {
@@ -1360,7 +1380,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "supabase_client_createclient",
-      "community": 0,
+      "community": 7,
       "norm_label": "createclient()"
     },
     {
@@ -2226,6 +2246,38 @@
       "target": "postcss_config_config"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/cart/[id]/summary/route.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "summary_route",
+      "target": "summary_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/cart/[id]/summary/route.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "summary_route",
+      "target": "supabase_server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/cart/[id]/summary/route.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "summary_route",
+      "target": "supabase_server_createclient",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -2275,9 +2327,9 @@
       "source_file": "src/app/cart/[id]/page.tsx",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "id_page",
-      "target": "ui_skeleton",
-      "confidence_score": 1.0
+      "target": "ui_skeleton"
     },
     {
       "relation": "imports",
@@ -2286,9 +2338,9 @@
       "source_file": "src/app/cart/[id]/page.tsx",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "id_page",
-      "target": "ui_skeleton_skeleton",
-      "confidence_score": 1.0
+      "target": "ui_skeleton_skeleton"
     },
     {
       "relation": "imports_from",
@@ -2297,9 +2349,9 @@
       "source_file": "src/app/cart/[id]/page.tsx",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "id_page",
-      "target": "utils_distance",
-      "confidence_score": 1.0
+      "target": "utils_distance"
     },
     {
       "relation": "imports",
@@ -2308,9 +2360,9 @@
       "source_file": "src/app/cart/[id]/page.tsx",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "id_page",
-      "target": "utils_distance_calculatedistance",
-      "confidence_score": 1.0
+      "target": "utils_distance_calculatedistance"
     },
     {
       "relation": "imports_from",
@@ -2363,9 +2415,9 @@
       "source_file": "src/app/employees/dashboard/page.tsx",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_app_employees_dashboard_page_tsx_dashboard_page",
-      "target": "components_navbar",
-      "confidence_score": 1.0
+      "target": "components_navbar"
     },
     {
       "relation": "contains",
@@ -2405,9 +2457,9 @@
       "source_file": "src/app/employees/dashboard/page.tsx",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_app_employees_dashboard_page_tsx_dashboard_page",
-      "target": "src_app_employees_dashboard_page_tsx_dashboard_page_locationupdater",
-      "confidence_score": 1.0
+      "target": "src_app_employees_dashboard_page_tsx_dashboard_page_locationupdater"
     },
     {
       "relation": "contains",
@@ -2448,9 +2500,9 @@
       "source_file": "src/app/employees/dashboard/page.tsx",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_app_employees_dashboard_page_tsx_dashboard_page",
-      "target": "ui_emptystate",
-      "confidence_score": 1.0
+      "target": "ui_emptystate"
     },
     {
       "relation": "imports",
@@ -2459,9 +2511,9 @@
       "source_file": "src/app/employees/dashboard/page.tsx",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_app_employees_dashboard_page_tsx_dashboard_page",
-      "target": "ui_emptystate_emptystate",
-      "confidence_score": 1.0
+      "target": "ui_emptystate_emptystate"
     },
     {
       "relation": "imports_from",
@@ -2470,9 +2522,9 @@
       "source_file": "src/app/employees/dashboard/page.tsx",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_app_employees_dashboard_page_tsx_dashboard_page",
-      "target": "ui_skeleton",
-      "confidence_score": 1.0
+      "target": "ui_skeleton"
     },
     {
       "relation": "imports",
@@ -2481,9 +2533,9 @@
       "source_file": "src/app/employees/dashboard/page.tsx",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_app_employees_dashboard_page_tsx_dashboard_page",
-      "target": "ui_skeleton_skeleton",
-      "confidence_score": 1.0
+      "target": "ui_skeleton_skeleton"
     },
     {
       "relation": "calls",
@@ -2577,9 +2629,9 @@
       "source_file": "src/app/explore/page.tsx",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "explore_page",
-      "target": "ui_skeleton",
-      "confidence_score": 1.0
+      "target": "ui_skeleton"
     },
     {
       "relation": "imports",
@@ -2588,9 +2640,9 @@
       "source_file": "src/app/explore/page.tsx",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "explore_page",
-      "target": "ui_skeleton_skeleton",
-      "confidence_score": 1.0
+      "target": "ui_skeleton_skeleton"
     },
     {
       "relation": "contains",
@@ -2651,9 +2703,9 @@
       "source_file": "src/app/owners/dashboard/page.tsx",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_app_owners_dashboard_page_tsx_dashboard_page",
-      "target": "components_navbar",
-      "confidence_score": 1.0
+      "target": "components_navbar"
     },
     {
       "relation": "contains",
@@ -2693,9 +2745,9 @@
       "source_file": "src/app/owners/dashboard/page.tsx",
       "source_location": "L17",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_app_owners_dashboard_page_tsx_dashboard_page",
-      "target": "src_app_owners_dashboard_page_tsx_dashboard_page_locationupdater",
-      "confidence_score": 1.0
+      "target": "src_app_owners_dashboard_page_tsx_dashboard_page_locationupdater"
     },
     {
       "relation": "contains",
@@ -2736,9 +2788,9 @@
       "source_file": "src/app/owners/dashboard/page.tsx",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_app_owners_dashboard_page_tsx_dashboard_page",
-      "target": "ui_emptystate",
-      "confidence_score": 1.0
+      "target": "ui_emptystate"
     },
     {
       "relation": "imports",
@@ -2747,9 +2799,9 @@
       "source_file": "src/app/owners/dashboard/page.tsx",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_app_owners_dashboard_page_tsx_dashboard_page",
-      "target": "ui_emptystate_emptystate",
-      "confidence_score": 1.0
+      "target": "ui_emptystate_emptystate"
     },
     {
       "relation": "imports_from",
@@ -2758,9 +2810,9 @@
       "source_file": "src/app/owners/dashboard/page.tsx",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_app_owners_dashboard_page_tsx_dashboard_page",
-      "target": "ui_skeleton",
-      "confidence_score": 1.0
+      "target": "ui_skeleton"
     },
     {
       "relation": "imports",
@@ -2769,9 +2821,9 @@
       "source_file": "src/app/owners/dashboard/page.tsx",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_app_owners_dashboard_page_tsx_dashboard_page",
-      "target": "ui_skeleton_skeleton",
-      "confidence_score": 1.0
+      "target": "ui_skeleton_skeleton"
     },
     {
       "relation": "imports_from",
@@ -2780,9 +2832,9 @@
       "source_file": "src/app/owners/dashboard/page.tsx",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_app_owners_dashboard_page_tsx_dashboard_page",
-      "target": "utils_hours",
-      "confidence_score": 1.0
+      "target": "utils_hours"
     },
     {
       "relation": "imports",
@@ -2791,9 +2843,9 @@
       "source_file": "src/app/owners/dashboard/page.tsx",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_app_owners_dashboard_page_tsx_dashboard_page",
-      "target": "utils_hours_operatinghours",
-      "confidence_score": 1.0
+      "target": "utils_hours_operatinghours"
     },
     {
       "relation": "imports_from",
@@ -2802,9 +2854,9 @@
       "source_file": "src/app/owners/dashboard/page.tsx",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_app_owners_dashboard_page_tsx_dashboard_page",
-      "target": "utils_imagecompression",
-      "confidence_score": 1.0
+      "target": "utils_imagecompression"
     },
     {
       "relation": "imports",
@@ -2813,9 +2865,9 @@
       "source_file": "src/app/owners/dashboard/page.tsx",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_app_owners_dashboard_page_tsx_dashboard_page",
-      "target": "utils_imagecompression_compressimage",
-      "confidence_score": 1.0
+      "target": "utils_imagecompression_compressimage"
     },
     {
       "relation": "calls",
@@ -2931,9 +2983,9 @@
       "source_file": "src/app/profile/page.tsx",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "profile_page",
-      "target": "components_navbar",
-      "confidence_score": 1.0
+      "target": "components_navbar"
     },
     {
       "relation": "imports_from",
@@ -2942,9 +2994,9 @@
       "source_file": "src/app/profile/page.tsx",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "profile_page",
-      "target": "hooks_useauth",
-      "confidence_score": 1.0
+      "target": "hooks_useauth"
     },
     {
       "relation": "imports",
@@ -2953,9 +3005,9 @@
       "source_file": "src/app/profile/page.tsx",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "profile_page",
-      "target": "hooks_useauth_useauth",
-      "confidence_score": 1.0
+      "target": "hooks_useauth_useauth"
     },
     {
       "relation": "contains",
@@ -2963,9 +3015,9 @@
       "source_file": "src/app/profile/page.tsx",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "profile_page",
-      "target": "profile_page_profilepage",
-      "confidence_score": 1.0
+      "target": "profile_page_profilepage"
     },
     {
       "relation": "imports_from",
@@ -2974,9 +3026,9 @@
       "source_file": "src/app/profile/page.tsx",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "profile_page",
-      "target": "supabase_client",
-      "confidence_score": 1.0
+      "target": "supabase_client"
     },
     {
       "relation": "imports",
@@ -2985,9 +3037,9 @@
       "source_file": "src/app/profile/page.tsx",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "profile_page",
-      "target": "supabase_client_createclient",
-      "confidence_score": 1.0
+      "target": "supabase_client_createclient"
     },
     {
       "relation": "imports_from",
@@ -2996,9 +3048,9 @@
       "source_file": "src/app/profile/page.tsx",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "profile_page",
-      "target": "ui_skeleton",
-      "confidence_score": 1.0
+      "target": "ui_skeleton"
     },
     {
       "relation": "imports",
@@ -3007,9 +3059,9 @@
       "source_file": "src/app/profile/page.tsx",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "profile_page",
-      "target": "ui_skeleton_skeleton",
-      "confidence_score": 1.0
+      "target": "ui_skeleton_skeleton"
     },
     {
       "relation": "calls",
@@ -3049,9 +3101,9 @@
       "source_file": "src/components/Hero.tsx",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_hero",
-      "target": "supabase_client",
-      "confidence_score": 1.0
+      "target": "supabase_client"
     },
     {
       "relation": "imports",
@@ -3060,9 +3112,9 @@
       "source_file": "src/components/Hero.tsx",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_hero",
-      "target": "supabase_client_createclient",
-      "confidence_score": 1.0
+      "target": "supabase_client_createclient"
     },
     {
       "relation": "contains",
@@ -3070,9 +3122,9 @@
       "source_file": "src/components/LocationUpdater.tsx",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_locationupdater",
-      "target": "components_locationupdater_customicon",
-      "confidence_score": 1.0
+      "target": "components_locationupdater_customicon"
     },
     {
       "relation": "contains",
@@ -3080,9 +3132,9 @@
       "source_file": "src/components/LocationUpdater.tsx",
       "source_location": "L24",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_locationupdater",
-      "target": "components_locationupdater_locationupdater",
-      "confidence_score": 1.0
+      "target": "components_locationupdater_locationupdater"
     },
     {
       "relation": "contains",
@@ -3090,9 +3142,9 @@
       "source_file": "src/components/LocationUpdater.tsx",
       "source_location": "L17",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_locationupdater",
-      "target": "components_locationupdater_locationupdaterprops",
-      "confidence_score": 1.0
+      "target": "components_locationupdater_locationupdaterprops"
     },
     {
       "relation": "contains",
@@ -3248,9 +3300,9 @@
       "source_file": "src/components/ui/EmptyState.tsx",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ui_emptystate",
-      "target": "ui_emptystate_emptystate",
-      "confidence_score": 1.0
+      "target": "ui_emptystate_emptystate"
     },
     {
       "relation": "contains",
@@ -3258,9 +3310,9 @@
       "source_file": "src/components/ui/EmptyState.tsx",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ui_emptystate",
-      "target": "ui_emptystate_emptystateprops",
-      "confidence_score": 1.0
+      "target": "ui_emptystate_emptystateprops"
     },
     {
       "relation": "contains",
@@ -3268,9 +3320,9 @@
       "source_file": "src/components/ui/Skeleton.tsx",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ui_skeleton",
-      "target": "ui_skeleton_skeleton",
-      "confidence_score": 1.0
+      "target": "ui_skeleton_skeleton"
     },
     {
       "relation": "imports_from",
@@ -3447,9 +3499,9 @@
       "source_file": "src/utils/distance.ts",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "utils_distance",
-      "target": "utils_distance_calculatedistance",
-      "confidence_score": 1.0
+      "target": "utils_distance_calculatedistance"
     },
     {
       "relation": "contains",
@@ -3457,9 +3509,9 @@
       "source_file": "src/utils/distance.ts",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "utils_distance",
-      "target": "utils_distance_deg2rad",
-      "confidence_score": 1.0
+      "target": "utils_distance_deg2rad"
     },
     {
       "relation": "calls",
@@ -3468,9 +3520,9 @@
       "source_file": "src/utils/distance.ts",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "utils_distance_calculatedistance",
-      "target": "utils_distance_deg2rad",
-      "confidence_score": 1.0
+      "target": "utils_distance_deg2rad"
     },
     {
       "relation": "contains",
@@ -3529,9 +3581,9 @@
       "source_file": "src/utils/imageCompression.ts",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "utils_imagecompression",
-      "target": "utils_imagecompression_compressimage",
-      "confidence_score": 1.0
+      "target": "utils_imagecompression_compressimage"
     },
     {
       "relation": "contains",
@@ -3785,5 +3837,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "3fb57f76d515a1f99ea452fbdb00fbdf8a64ab8c"
+  "built_at_commit": "098b72d432585572add038c1ad94d5b3fef2ab7f"
 }

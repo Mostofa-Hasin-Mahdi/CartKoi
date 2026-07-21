@@ -23,6 +23,10 @@ export default function CartDetailPage() {
   const [distanceKm, setDistanceKm] = useState<number | null>(null);
   const [locationDenied, setLocationDenied] = useState(false);
 
+  // AI Summary State
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [isLoadingSummary, setIsLoadingSummary] = useState(false);
+
   // Review Form State
   const [reviewName, setReviewName] = useState("");
   const [reviewComment, setReviewComment] = useState("");
@@ -82,6 +86,27 @@ export default function CartDetailPage() {
 
     fetchCartData();
   }, [params.id]);
+
+  // Fetch AI Summary
+  useEffect(() => {
+    const fetchAISummary = async () => {
+      if (!params.id) return;
+      setIsLoadingSummary(true);
+      try {
+        const res = await fetch(`/api/cart/${params.id}/summary`);
+        if (res.ok) {
+          const data = await res.json();
+          setAiSummary(data.summary);
+        }
+      } catch (err) {
+        console.error("Error fetching AI summary:", err);
+      } finally {
+        setIsLoadingSummary(false);
+      }
+    };
+
+    fetchAISummary();
+  }, [params.id, reviews.length]);
 
   useEffect(() => {
     if (cart?.lat && cart?.lng) {
@@ -386,6 +411,33 @@ export default function CartDetailPage() {
             <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
               <MessageSquare size={24} className="text-primary" /> Customer Reviews
             </h2>
+
+            {/* AI Summary Section */}
+            {(isLoadingSummary || aiSummary) && (
+              <div className="mb-8 p-6 rounded-2xl bg-gradient-to-br from-indigo-50/50 to-purple-50/50 border border-indigo-100/50 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-indigo-500 to-purple-500" />
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="bg-indigo-100 p-1.5 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-600">
+                      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                    </svg>
+                  </div>
+                  <h3 className="font-bold text-indigo-950 text-lg">AI Review Summary</h3>
+                </div>
+                
+                {isLoadingSummary ? (
+                  <div className="space-y-2 animate-pulse">
+                    <div className="h-4 bg-indigo-200/50 rounded-full w-3/4"></div>
+                    <div className="h-4 bg-indigo-200/50 rounded-full w-full"></div>
+                    <div className="h-4 bg-indigo-200/50 rounded-full w-5/6"></div>
+                  </div>
+                ) : (
+                  <div className="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap">
+                    {aiSummary}
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="md:col-span-2 space-y-4">

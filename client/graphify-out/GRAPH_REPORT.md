@@ -1,16 +1,16 @@
-# Graph Report - client  (2026-07-15)
+# Graph Report - client  (2026-07-21)
 
 ## Corpus Check
-- 36 files · ~52,937 words
+- 37 files · ~54,012 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 164 nodes · 206 edges · 17 communities (11 shown, 6 thin omitted)
+- 166 nodes · 209 edges · 16 communities (9 shown, 7 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 2 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3fb57f76`
+- Built from commit: `098b72d4`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -22,14 +22,15 @@
 - [[_COMMUNITY_Community 4|Community 4]]
 - [[_COMMUNITY_Community 5|Community 5]]
 - [[_COMMUNITY_Community 6|Community 6]]
+- [[_COMMUNITY_Community 7|Community 7]]
 - [[_COMMUNITY_Community 9|Community 9]]
 - [[_COMMUNITY_Community 10|Community 10]]
-- [[_COMMUNITY_Community 11|Community 11]]
 - [[_COMMUNITY_Community 12|Community 12]]
 - [[_COMMUNITY_Community 13|Community 13]]
 - [[_COMMUNITY_Community 14|Community 14]]
 - [[_COMMUNITY_Community 15|Community 15]]
 - [[_COMMUNITY_Community 16|Community 16]]
+- [[_COMMUNITY_Community 17|Community 17]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `compilerOptions` - 16 edges
@@ -58,11 +59,11 @@
 ## Import Cycles
 - None detected.
 
-## Communities (17 total, 6 thin omitted)
+## Communities (16 total, 7 thin omitted)
 
 ### Community 0 - "Community 0"
-Cohesion: 0.11
-Nodes (17): NavBar(), TopBar(), EmployeeDashboard(), OwnerDashboard(), MapComponent, useAuth(), User, ProfilePage() (+9 more)
+Cohesion: 0.13
+Nodes (17): metadata, poppins, NavBar(), TopBar(), EmployeeDashboard(), OwnerDashboard(), useAuth(), User (+9 more)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.10
@@ -99,21 +100,21 @@ Nodes (3): Deploy on Vercel, Getting Started, Learn More
 ## Knowledge Gaps
 - **89 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+84 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `dependencies` connect `Community 3` to `Community 5`?**
-  _High betweenness centrality (0.030) - this node is a cross-community bridge._
-- **Why does `createClient()` connect `Community 0` to `Community 4`?**
-  _High betweenness centrality (0.027) - this node is a cross-community bridge._
+  _High betweenness centrality (0.029) - this node is a cross-community bridge._
+- **Why does `createClient()` connect `Community 7` to `Community 0`, `Community 4`?**
+  _High betweenness centrality (0.026) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `useAuth()` (e.g. with `EmployeeDashboard()` and `OwnerDashboard()`) actually correct?**
   _`useAuth()` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `$schema`, `style`, `rsc` to the rest of the system?**
   _89 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.10810810810810811 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.13227513227513227 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
   _Cohesion score 0.1 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
