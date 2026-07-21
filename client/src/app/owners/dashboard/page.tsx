@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Settings, Link as LinkIcon, Globe, Camera, Clock, Edit2, Trash2, Save, Users, UserX, Navigation, MessageSquare, Star, Image as ImageIcon, Phone } from "lucide-react";
+import { Plus, Power, MapPin, Store, Check, X, Loader2, ArrowLeft, Settings, Link as LinkIcon, Globe, Camera, Clock, Edit2, Trash2, Save, Users, UserX, Navigation, MessageSquare, Star, Image as ImageIcon, Phone, TrendingUp, TrendingDown, Award } from "lucide-react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/useAuth";
@@ -16,7 +16,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 
 const LocationUpdater = dynamic(() => import("@/components/LocationUpdater"), { ssr: false });
 
-type ViewState = 'list' | 'create' | 'cart_dashboard' | 'settings' | 'employees';
+type ViewState = 'list' | 'create' | 'cart_dashboard' | 'settings' | 'employees' | 'sales_insights';
 
 export default function OwnerDashboard() {
   const { user, loading } = useAuth();
@@ -71,6 +71,15 @@ export default function OwnerDashboard() {
   const [editItemPrice, setEditItemPrice] = useState("");
   const [editItemDescription, setEditItemDescription] = useState("");
   const [editItemImage, setEditItemImage] = useState<File | null>(null);
+
+  // Sales Insights States
+  const [salesLogs, setSalesLogs] = useState<any[]>([]);
+  const [aiSalesInsight, setAiSalesInsight] = useState<string | null>(null);
+  const [isGeneratingInsight, setIsGeneratingInsight] = useState(false);
+  const [saleAmount, setSaleAmount] = useState("");
+  const [saleLocationName, setSaleLocationName] = useState("");
+  const [saleLat, setSaleLat] = useState<number | "">("");
+  const [saleLng, setSaleLng] = useState<number | "">("");
 
   useEffect(() => {
     if (!loading && !user) {
@@ -247,6 +256,67 @@ export default function OwnerDashboard() {
       const emps = data.map((row: any) => row.profiles).filter(Boolean);
       setCartEmployees(emps || []);
     }
+  };
+
+  const handleSelectSalesInsights = async (e: React.MouseEvent, cart: any) => {
+    e.stopPropagation();
+    setSelectedCartId(cart.id);
+    setCartName(cart.name);
+    setAiSalesInsight(cart.ai_sales_insight || null);
+    setSaleLat(cart.lat || "");
+    setSaleLng(cart.lng || "");
+    setView('sales_insights');
+    
+    const { data } = await supabase
+      .from("sales_logs")
+      .select("*")
+      .eq("cart_id", cart.id)
+      .order("created_at", { ascending: false });
+      
+    setSalesLogs(data || []);
+  };
+
+  const handleAddSaleLog = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedCartId || !saleAmount || !saleLocationName) return;
+
+    const { data, error } = await supabase
+      .from("sales_logs")
+      .insert({
+        cart_id: selectedCartId,
+        amount: Number(saleAmount),
+        location_name: saleLocationName,
+        lat: saleLat === "" ? null : Number(saleLat),
+        lng: saleLng === "" ? null : Number(saleLng)
+      })
+      .select()
+      .single();
+
+    if (error) {
+      alert("Failed to log sale.");
+    } else if (data) {
+      setSalesLogs([data, ...salesLogs]);
+      setSaleAmount("");
+      // Keep location name/coords for consecutive logs
+    }
+  };
+
+  const generateAIInsight = async () => {
+    if (!selectedCartId) return;
+    setIsGeneratingInsight(true);
+    try {
+      const res = await fetch(`/api/cart/${selectedCartId}/sales-insights`);
+      if (res.ok) {
+        const data = await res.json();
+        setAiSalesInsight(data.insight);
+      } else {
+        alert("Failed to generate insight.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error calling AI.");
+    }
+    setIsGeneratingInsight(false);
   };
 
   const removeEmployee = async (employeeId: string) => {
@@ -574,13 +644,19 @@ export default function OwnerDashboard() {
                       <div className="mt-auto flex gap-2">
                         <button
                           onClick={(e) => handleSelectCartEmployees(e, cart)}
-                          className="flex-1 py-2 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-100 font-semibold text-sm transition-all flex items-center justify-center gap-1.5 z-10"
+                          className="flex-1 py-2 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-100 font-semibold text-xs transition-all flex items-center justify-center gap-1 z-10"
                         >
-                          <Users size={14} /> Employees
+                          <Users size={14} /> Staff
+                        </button>
+                        <button
+                          onClick={(e) => handleSelectSalesInsights(e, cart)}
+                          className="flex-1 py-2 rounded-xl bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-100 font-semibold text-xs transition-all flex items-center justify-center gap-1 z-10"
+                        >
+                          <Star size={14} /> Insights
                         </button>
                         <button
                           onClick={(e) => handleSelectCartSettings(e, cart)}
-                          className="flex-1 py-2 rounded-xl bg-white/50 hover:bg-white/80 border border-white/60 font-semibold text-sm transition-all flex items-center justify-center gap-1.5 z-10"
+                          className="flex-1 py-2 rounded-xl bg-white/50 hover:bg-white/80 border border-white/60 font-semibold text-xs transition-all flex items-center justify-center gap-1 z-10"
                         >
                           <Settings size={14} /> Settings
                         </button>
@@ -1138,6 +1214,179 @@ export default function OwnerDashboard() {
                     <p>No reviews yet.</p>
                   </div>
                 )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {view === 'sales_insights' && (
+          <motion.div
+            key="sales_insights"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3 }}
+            className="w-full max-w-4xl mx-auto space-y-6"
+          >
+            <button
+              onClick={() => setView('list')}
+              className="flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground mb-2 transition-colors"
+            >
+              <ArrowLeft size={16} /> Back to Dashboard
+            </button>
+
+            <div className="mb-4">
+              <h1 className="text-3xl font-bold text-foreground tracking-tight mb-2">Sales & Insights</h1>
+              <p className="text-muted-foreground">Log your revenue by location and let AI optimize your strategy for {cartName}.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Left Column: Logging Sales */}
+              <div className="glass-panel p-6 rounded-[2rem] border border-white/60 shadow-lg h-fit">
+                <h2 className="text-xl font-bold text-foreground mb-4">Log Sale Session</h2>
+                <form onSubmit={handleAddSaleLog} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-foreground ml-1">Revenue Amount (৳)</label>
+                    <input
+                      type="number"
+                      required
+                      value={saleAmount}
+                      onChange={(e) => setSaleAmount(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white/50 border border-white/60 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                      placeholder="e.g. 5000"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-foreground ml-1">Location Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={saleLocationName}
+                      onChange={(e) => setSaleLocationName(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white/50 border border-white/60 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                      placeholder="e.g. Dhanmondi Lake"
+                    />
+                  </div>
+                  <div className="space-y-1.5 mb-2">
+                    <label className="text-sm font-medium text-foreground ml-1 flex items-center gap-1"><Navigation size={14}/> Coordinates</label>
+                    <p className="text-xs text-muted-foreground mb-2">Pinpoint exactly where this sale occurred.</p>
+                    <LocationUpdater 
+                      initialLat={saleLat === "" ? null : saleLat} 
+                      initialLng={saleLng === "" ? null : saleLng} 
+                      onSave={(lat, lng) => { setSaleLat(lat); setSaleLng(lng); return Promise.resolve(); }} 
+                      isSaving={false} 
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-full py-3 rounded-full bg-primary text-primary-foreground font-semibold shadow-md hover:shadow-lg transition-all"
+                  >
+                    Log Sale
+                  </button>
+                </form>
+
+                <div className="mt-8">
+                  <h3 className="text-lg font-bold text-foreground mb-3">Recent Logs</h3>
+                  <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+                    {salesLogs.map(log => (
+                      <div key={log.id} className="bg-white/50 p-3 rounded-xl border border-white/60 text-sm">
+                        <div className="flex justify-between font-bold text-slate-800">
+                          <span>৳{log.amount}</span>
+                          <span>{log.location_name}</span>
+                        </div>
+                        <div className="text-xs text-slate-500 mt-1">
+                          {new Date(log.created_at).toLocaleString()}
+                        </div>
+                      </div>
+                    ))}
+                    {salesLogs.length === 0 && (
+                      <p className="text-xs text-slate-400 italic">No sales logged yet.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: AI Insights */}
+              <div className="glass-panel p-6 rounded-[2rem] border border-white/60 shadow-lg h-fit bg-gradient-to-br from-indigo-50/40 to-purple-50/40 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-indigo-500 to-purple-500" />
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="bg-indigo-100 p-2 rounded-xl text-indigo-600">
+                    <Star size={20} fill="currentColor" />
+                  </div>
+                  <h2 className="text-xl font-bold text-indigo-950">AI Profitability Analysis</h2>
+                </div>
+                
+                <p className="text-sm text-slate-600 mb-6">
+                  Our AI analyzes your sales logs, locations, and timestamps to find out exactly where and when your cart is most profitable.
+                </p>
+
+                {(() => {
+                  if (!aiSalesInsight) {
+                    return (
+                      <div className="bg-white/40 border border-white/60 p-6 rounded-xl text-center mb-6">
+                        <p className="text-sm text-slate-500 italic">No insight generated yet.</p>
+                      </div>
+                    );
+                  }
+                  
+                  try {
+                    // Try parsing as JSON
+                    const parsed = JSON.parse(aiSalesInsight);
+                    return (
+                      <div className="space-y-4 mb-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="bg-white/70 p-4 rounded-xl border border-green-200 shadow-sm flex flex-col gap-1 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-2 text-green-100 opacity-20 -mr-2 -mt-2"><TrendingUp size={64} /></div>
+                            <span className="text-xs font-bold text-green-600 uppercase tracking-wider flex items-center gap-1"><Award size={12}/> Top Location</span>
+                            <span className="text-sm font-bold text-slate-800 z-10">{parsed.top_location?.name || "N/A"}</span>
+                            <span className="text-xs text-green-700 font-semibold z-10">{parsed.top_location?.revenue || ""}</span>
+                          </div>
+                          
+                          <div className="bg-white/70 p-4 rounded-xl border border-blue-200 shadow-sm flex flex-col gap-1 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-2 text-blue-100 opacity-20 -mr-2 -mt-2"><TrendingUp size={64} /></div>
+                            <span className="text-xs font-bold text-blue-600 uppercase tracking-wider">Secondary</span>
+                            <span className="text-sm font-bold text-slate-800 z-10">{parsed.secondary_location?.name || "N/A"}</span>
+                            <span className="text-xs text-blue-700 font-semibold z-10">{parsed.secondary_location?.revenue || ""}</span>
+                          </div>
+                          
+                          <div className="bg-white/70 p-4 rounded-xl border border-red-200 shadow-sm flex flex-col gap-1 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-2 text-red-100 opacity-20 -mr-2 -mt-2"><TrendingDown size={64} /></div>
+                            <span className="text-xs font-bold text-red-600 uppercase tracking-wider">Weakest</span>
+                            <span className="text-sm font-bold text-slate-800 z-10">{parsed.weakest_location?.name || "N/A"}</span>
+                            <span className="text-xs text-red-700 font-semibold z-10">{parsed.weakest_location?.revenue || ""}</span>
+                          </div>
+                          
+                          <div className="bg-white/70 p-4 rounded-xl border border-amber-200 shadow-sm flex flex-col gap-1 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-2 text-amber-100 opacity-20 -mr-2 -mt-2"><Clock size={64} /></div>
+                            <span className="text-xs font-bold text-amber-600 uppercase tracking-wider">Best Time</span>
+                            <span className="text-sm font-bold text-slate-800 z-10">{parsed.best_time || "N/A"}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-indigo-50/80 p-4 rounded-xl border border-indigo-200 shadow-sm">
+                          <span className="text-xs font-bold text-indigo-700 uppercase tracking-wider mb-2 block">Recommendation</span>
+                          <p className="text-sm text-slate-800 leading-relaxed">{parsed.recommendation}</p>
+                        </div>
+                      </div>
+                    );
+                  } catch (e) {
+                    // Fallback if not JSON
+                    return (
+                      <div className="bg-white/60 p-4 rounded-xl border border-indigo-100/50 text-sm leading-relaxed text-slate-800 whitespace-pre-wrap mb-6">
+                        {aiSalesInsight}
+                      </div>
+                    );
+                  }
+                })()}
+
+                <button
+                  onClick={generateAIInsight}
+                  disabled={isGeneratingInsight || salesLogs.length === 0}
+                  className="w-full py-3 rounded-full bg-indigo-600 text-white font-semibold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {isGeneratingInsight ? <Loader2 size={18} className="animate-spin" /> : <Star size={18} />}
+                  {isGeneratingInsight ? "Analyzing..." : "Generate AI Insight"}
+                </button>
               </div>
             </div>
           </motion.div>
