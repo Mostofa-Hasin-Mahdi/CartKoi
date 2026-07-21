@@ -40,6 +40,9 @@ export default function OwnerDashboard() {
   const [facebookLink, setFacebookLink] = useState("");
   const [instagramLink, setInstagramLink] = useState("");
   const [inviteCode, setInviteCode] = useState("");
+  const [existingCartImageUrl, setExistingCartImageUrl] = useState<string | null>(null);
+  const [cartImage, setCartImage] = useState<File | null>(null);
+  const [isUploadingSettings, setIsUploadingSettings] = useState(false);
   const [operatingHours, setOperatingHours] = useState({
     monday: "",
     tuesday: "",
@@ -180,6 +183,8 @@ export default function OwnerDashboard() {
     setOperatingHours(cart.operating_hours || {
       monday: "", tuesday: "", wednesday: "", thursday: "", friday: "", saturday: "", sunday: ""
     });
+    setExistingCartImageUrl(cart.image_url || null);
+    setCartImage(null);
     setView('settings');
   };
 
@@ -195,6 +200,15 @@ export default function OwnerDashboard() {
       return url.trim();
     };
 
+    setIsUploadingSettings(true);
+    let finalImageUrl = existingCartImageUrl;
+    if (cartImage) {
+      const newUrl = await uploadImage(cartImage);
+      if (newUrl) {
+        finalImageUrl = newUrl;
+      }
+    }
+
     const { error } = await supabase
       .from("carts")
       .update({
@@ -204,9 +218,12 @@ export default function OwnerDashboard() {
         lng: lng === "" ? null : Number(lng),
         foodpanda_link: formatUrl(foodpandaLink),
         social_links: { facebook: formatUrl(facebookLink), instagram: formatUrl(instagramLink) },
-        operating_hours: operatingHours
+        operating_hours: operatingHours,
+        image_url: finalImageUrl
       })
       .eq("id", selectedCartId);
+
+    setIsUploadingSettings(false);
 
     if (error) {
       console.error("Error updating settings:", error);
@@ -790,6 +807,43 @@ export default function OwnerDashboard() {
                 <hr className="border-white/40 my-6" />
 
                 <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-foreground flex items-center gap-2"><ImageIcon size={18} className="text-primary"/> Brand Image</h3>
+                  <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                    <div className="w-24 h-24 relative rounded-2xl overflow-hidden border-2 border-dashed border-primary/30 flex items-center justify-center bg-white/50 shrink-0">
+                      {(cartImage || existingCartImageUrl) ? (
+                        <Image 
+                          src={cartImage ? URL.createObjectURL(cartImage) : existingCartImageUrl!} 
+                          alt="Brand Image" 
+                          fill 
+                          className="object-cover" 
+                        />
+                      ) : (
+                        <Store size={32} className="text-slate-300" />
+                      )}
+                    </div>
+                    <div className="space-y-2 flex-1">
+                      <p className="text-sm text-muted-foreground">Upload a photo to represent your cart on the platform. It will replace the default icon.</p>
+                      <label className="cursor-pointer inline-block px-4 py-2 bg-primary/10 text-primary font-bold rounded-xl text-sm hover:bg-primary/20 transition">
+                        Choose Photo
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          className="hidden" 
+                          onChange={(e) => e.target.files && setCartImage(e.target.files[0])} 
+                        />
+                      </label>
+                      {cartImage && (
+                        <button type="button" onClick={() => setCartImage(null)} className="ml-2 px-4 py-2 bg-red-50 text-red-600 font-bold rounded-xl text-sm hover:bg-red-100 transition">
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <hr className="border-white/40 my-6" />
+
+                <div className="space-y-4">
                   <h3 className="text-lg font-bold text-foreground flex items-center gap-2"><Clock size={18} className="text-primary"/> Operating Hours</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => (
@@ -874,9 +928,11 @@ export default function OwnerDashboard() {
 
                 <button
                   type="submit"
-                  className="w-full py-2.5 mt-6 rounded-xl bg-primary text-primary-foreground font-semibold shadow-md hover:shadow-lg transition-all text-sm"
+                  disabled={isUploadingSettings}
+                  className="w-full py-2.5 mt-6 rounded-xl bg-primary text-primary-foreground font-semibold shadow-md hover:shadow-lg transition-all text-sm flex items-center justify-center gap-2 disabled:opacity-50"
                 >
-                  Save Settings
+                  {isUploadingSettings ? <Loader2 size={16} className="animate-spin" /> : <Save size={16}/>}
+                  {isUploadingSettings ? "Saving..." : "Save Settings"}
                 </button>
               </form>
             </div>
@@ -914,21 +970,21 @@ export default function OwnerDashboard() {
                   </div>
                 ) : (
                   cartEmployees.map(emp => (
-                    <div key={emp.id} className="flex items-center justify-between bg-white/60 p-4 rounded-xl shadow-sm border border-white">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">
+                    <div key={emp.id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-white/60 p-4 rounded-xl shadow-sm border border-white gap-4">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold shrink-0">
                           {emp?.full_name?.charAt(0).toUpperCase() || "U"}
                         </div>
-                        <div>
-                          <p className="font-bold text-foreground flex items-center gap-2">
+                        <div className="min-w-0">
+                          <p className="font-bold text-foreground truncate">
                             {emp?.full_name || "Unknown User"}
                           </p>
-                          <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
-                            <span className="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-md text-slate-600">
+                          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mt-1">
+                            <span className="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-md text-slate-600 whitespace-nowrap">
                               ID: {emp?.id?.substring(0, 8)}
                             </span>
                             {emp?.phone_number && (
-                              <span className="flex items-center gap-1 text-slate-600">
+                              <span className="flex items-center gap-1 text-slate-600 whitespace-nowrap">
                                 <Phone size={12} /> {emp.phone_number}
                               </span>
                             )}
@@ -937,7 +993,7 @@ export default function OwnerDashboard() {
                       </div>
                       <button
                         onClick={() => removeEmployee(emp?.id)}
-                        className="p-2 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors flex items-center gap-2 text-sm font-semibold"
+                        className="p-2.5 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm font-semibold sm:w-auto w-full bg-red-50/50 sm:bg-transparent shrink-0"
                         title="Remove Employee"
                       >
                         <UserX size={16} /> Remove

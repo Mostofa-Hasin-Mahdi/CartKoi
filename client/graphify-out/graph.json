@@ -636,6 +636,26 @@
     {
       "label": "route.ts",
       "file_type": "code",
+      "source_file": "src/app/api/cart/[id]/sales-insights/route.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "sales_insights_route",
+      "community": 17,
+      "norm_label": "route.ts"
+    },
+    {
+      "label": "GET()",
+      "file_type": "code",
+      "source_file": "src/app/api/cart/[id]/sales-insights/route.ts",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "sales_insights_route_get",
+      "community": 17,
+      "norm_label": "get()"
+    },
+    {
+      "label": "route.ts",
+      "file_type": "code",
       "source_file": "src/app/api/cart/[id]/summary/route.ts",
       "source_location": "L1",
       "_origin": "ast",
@@ -2248,12 +2268,44 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "src/app/api/cart/[id]/sales-insights/route.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "sales_insights_route",
+      "target": "sales_insights_route_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/cart/[id]/sales-insights/route.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "sales_insights_route",
+      "target": "supabase_server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/api/cart/[id]/sales-insights/route.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "sales_insights_route",
+      "target": "supabase_server_createclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "src/app/api/cart/[id]/summary/route.ts",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "summary_route",
-      "target": "summary_route_get",
-      "confidence_score": 1.0
+      "target": "summary_route_get"
     },
     {
       "relation": "imports_from",
@@ -2262,9 +2314,9 @@
       "source_file": "src/app/api/cart/[id]/summary/route.ts",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "summary_route",
-      "target": "supabase_server",
-      "confidence_score": 1.0
+      "target": "supabase_server"
     },
     {
       "relation": "imports",
@@ -2273,9 +2325,9 @@
       "source_file": "src/app/api/cart/[id]/summary/route.ts",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "summary_route",
-      "target": "supabase_server_createclient",
-      "confidence_score": 1.0
+      "target": "supabase_server_createclient"
     },
     {
       "relation": "imports_from",
@@ -3837,5 +3889,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "098b72d432585572add038c1ad94d5b3fef2ab7f"
+  "built_at_commit": "3d5a3685f4a597f329ace977b7e1526705f3aeec"
 }

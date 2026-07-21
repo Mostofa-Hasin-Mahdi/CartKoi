@@ -130,8 +130,8 @@ export default function CartDetailPage() {
   if (loading) {
     return (
       <main className="flex min-h-screen flex-col bg-slate-50 pb-24 relative overflow-x-hidden">
-        <div className="w-full h-48 md:h-64 bg-slate-900 relative">
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent z-10" />
+        <div className="w-full h-48 md:h-64 bg-slate-900 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-transparent z-10" />
         </div>
         <div className="px-4 md:px-8 max-w-4xl mx-auto w-full -mt-16 z-20 relative">
           <div className="bg-white rounded-3xl p-6 md:p-8 shadow-xl border border-slate-100 mb-6">
@@ -260,8 +260,11 @@ export default function CartDetailPage() {
   return (
     <main className="flex min-h-screen flex-col bg-slate-50 pb-24 relative overflow-x-hidden">
       {/* Header section with optional background image placeholder */}
-      <div className="w-full h-48 md:h-64 bg-slate-900 relative">
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent z-10" />
+      <div className="w-full h-48 md:h-64 bg-slate-900 relative overflow-hidden">
+        {cart.image_url && (
+          <Image src={cart.image_url} alt="Cart Background" fill className="object-cover opacity-60 mix-blend-overlay" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/40 to-transparent z-10" />
         <button 
           onClick={() => router.push('/explore')}
           className="absolute top-6 left-4 z-20 flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 transition"
