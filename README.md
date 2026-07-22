@@ -145,29 +145,29 @@ CartKoi is architected following clean software design principles to maximize mo
 
 ```mermaid
 flowchart TD
-    A[Customer Views Cart Page] --> B{Check DB Cache\nai_summary exists?}
-    B -- Yes --> C{New text reviews >= 2\nsince last summary?}
-    C -- No --> D[Return Cached AI Summary]
-    C -- Yes --> E[Fetch Reviews Stratified:\n5 High, 5 Mid, 5 Low]
+    A["Customer Views Cart Page"] --> B{"Check DB Cache: ai_summary exists?"}
+    B -- Yes --> C{"New text reviews >= 2 since last summary?"}
+    C -- No --> D["Return Cached AI Summary"]
+    C -- Yes --> E["Fetch Reviews Stratified: 5 High, 5 Mid, 5 Low"]
     B -- No --> E
-    E --> F[Send Prompt to Mistral AI\nmistral-small-latest]
-    F --> G[Receive Clean Summary Paragraph]
-    G --> H[Update DB Cache in `carts` table]
-    H --> I[Render AI Summary on UI]
+    E --> F["Send Prompt to Mistral AI (mistral-small-latest)"]
+    F --> G["Receive Clean Summary Paragraph"]
+    G --> H["Update DB Cache in carts table"]
+    H --> I["Render AI Summary on UI"]
 ```
 
 ### 2. 📊 Mistral AI Sales & Profitability Analysis Flow
 
 ```mermaid
 flowchart TD
-    Owner[Cart Owner Request Insights] --> API[/api/cart/id/sales-insights]
-    API --> DB[(Query sales_logs table)]
-    DB --> Format[Format Logs: Lat/Lng, Location Name, Revenue, Timestamp]
-    Format --> Prompt[Construct System Prompt with JSON Schema]
-    Prompt --> Mistral[Call Mistral AI API]
-    Mistral --> Parse[Receive Structured JSON:\nTop/Weak Locations, Best Time, Recommendation]
-    Parse --> CacheDB[(Cache JSON in carts.ai_sales_insight)]
-    CacheDB --> Render[Render Profitability Cards on Owner Dashboard]
+    Owner["Cart Owner Request Insights"] --> API["/api/cart/id/sales-insights"]
+    API --> DB[("Query sales_logs table")]
+    DB --> Format["Format Logs: Lat/Lng, Location Name, Revenue, Timestamp"]
+    Format --> Prompt["Construct System Prompt with JSON Schema"]
+    Prompt --> Mistral["Call Mistral AI API"]
+    Mistral --> Parse["Receive Structured JSON: Top/Weak Locations, Best Time, Recommendation"]
+    Parse --> CacheDB[("Cache JSON in carts.ai_sales_insight")]
+    CacheDB --> Render["Render Profitability Cards on Owner Dashboard"]
 ```
 
 ---
